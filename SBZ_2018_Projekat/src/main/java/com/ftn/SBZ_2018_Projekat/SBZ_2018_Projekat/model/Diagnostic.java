@@ -35,8 +35,8 @@ public class Diagnostic implements Serializable{
 	@JsonBackReference
 	private Patient patient;
 	
-	@ManyToOne(optional=false)
-	private Disease disease;
+	@ManyToMany
+	private Set<Disease> diseases;
 	
 	@ManyToMany
 	private Set<Antibiotic> medications;
@@ -49,12 +49,12 @@ public class Diagnostic implements Serializable{
 	
 	public Diagnostic() {}
 
-	public Diagnostic(Long id, Date date, Patient patient, Disease disease, Set<Antibiotic> medications, User doctor, Set<Symptom> symptoms) {
+	public Diagnostic(Long id, Date date, Patient patient, Set<Disease> diseases, Set<Antibiotic> medications, User doctor, Set<Symptom> symptoms) {
 		super();
 		this.id = id;
 		this.date = date;
 		this.patient = patient;
-		this.disease = disease;
+		this.diseases = diseases;
 		this.medications = medications;
 		this.doctor = doctor;
 		this.symptoms = symptoms;
@@ -84,12 +84,12 @@ public class Diagnostic implements Serializable{
 		this.patient = patient;
 	}
 
-	public Disease getDisease() {
-		return disease;
+	public Set<Disease> getDiseases() {
+		return diseases;
 	}
 
-	public void setDisease(Disease disease) {
-		this.disease = disease;
+	public void setDiseases(Set<Disease> diseases) {
+		this.diseases = diseases;
 	}
 
 	public Set<Antibiotic> getMedications() {
@@ -118,7 +118,7 @@ public class Diagnostic implements Serializable{
 
 	@Override
 	public String toString() {
-		return "Diagnostic [id=" + id + ", date=" + date + ", patient=" + patient + ", disease=" + disease
+		return "Diagnostic [id=" + id + ", date=" + date + ", patient=" + patient + ", diseases=" + diseases
 				+ ", medications=" + medications + ", symptoms=" + symptoms + ", doctor=" + doctor + "]";
 	}
 }

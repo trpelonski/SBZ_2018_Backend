@@ -20,12 +20,12 @@ global Long days14;
 global Long days21;
 global Long months6;
 
-rule "Diagnostic exists"
+rule "Prva grupa bolesti start"
 	agenda-group "necessary"
 	salience 100
 	no-loop true
 	when
-		$d : Diagnostic ( disease == null )
+		$d : Diagnostic ( diseases.isEmpty() )
 	then
 		DiseaseExpert diseaseExpert = don($d, DiseaseExpert.class);
 		diseaseExpert.setDiseasePercentage(0.0);
@@ -33,12 +33,12 @@ rule "Diagnostic exists"
 end
 
 rule "Prehlada"
-	agenda-group "disease"
+	agenda-group "disease1"
 	salience 99
 	no-loop true
 	lock-on-active true
 	when
-		$d : Diagnostic ( $symptoms : symptoms ) @Watch(!disease)
+		$d : Diagnostic ( $symptoms : symptoms ) @Watch(!diseases)
 		$de : DiseaseExpert ( $diseasePercentage : diseasePercentage >= 0.0, $symptomsSum : symptomsSum )
 		Number ( $sum : intValue >= 4) from accumulate(
 				Symptom(
@@ -54,17 +54,17 @@ rule "Prehlada"
 			$de.setDiseasePercentage(diseasePercentageNew);
 			$de.setSymptomsSum($sum);
 			Disease disease = diseaseService.getDisease(new Long(1));
-			modify($d) { setDisease(disease); }
+			modify($d) { getDiseases().clear(), getDiseases().add(disease); }
 		}		
 end
 
 rule "Groznica"
-	agenda-group "disease"
+	agenda-group "disease1"
 	salience 98
 	no-loop true
 	lock-on-active true
 	when
-		$d : Diagnostic ( $symptoms : symptoms ) @Watch(!disease)
+		$d : Diagnostic ( $symptoms : symptoms ) @Watch(!diseases)
 		$de : DiseaseExpert ( $diseasePercentage : diseasePercentage >= 0.0, $symptomsSum : symptomsSum )
 		Number ( $sum : intValue >= 4) from accumulate(
 				Symptom(
@@ -80,17 +80,17 @@ rule "Groznica"
 			$de.setDiseasePercentage(diseasePercentageNew);
 			$de.setSymptomsSum($sum);
 			Disease disease = diseaseService.getDisease(new Long(2));
-			modify($d) { setDisease(disease); }
+			modify($d) { getDiseases().clear(), getDiseases().add(disease); }
 		}		
 end
 
 rule "Upala krajnika"
-	agenda-group "disease"
+	agenda-group "disease1"
 	salience 97
 	no-loop true
 	lock-on-active true
 	when
-		$d : Diagnostic ( $symptoms : symptoms ) @Watch(!disease)
+		$d : Diagnostic ( $symptoms : symptoms ) @Watch(!diseases)
 		$de : DiseaseExpert ( $diseasePercentage : diseasePercentage >= 0.0, $symptomsSum : symptomsSum )
 		Number ( $sum : intValue >= 4) from accumulate(
 				Symptom(
@@ -106,17 +106,17 @@ rule "Upala krajnika"
 			$de.setDiseasePercentage(diseasePercentageNew);
 			$de.setSymptomsSum($sum);
 			Disease disease = diseaseService.getDisease(new Long(3));
-			modify($d) { setDisease(disease); }
+			modify($d) { getDiseases().clear(), getDiseases().add(disease); }
 		}		
 end
 
 rule "Sinusna infekcija"
-	agenda-group "disease"
+	agenda-group "disease1"
 	salience 96
 	no-loop true
 	lock-on-active true
 	when
-		$d : Diagnostic ( $symptoms : symptoms, $patient : patient ) @Watch(!disease)
+		$d : Diagnostic ( $symptoms : symptoms, $patient : patient ) @Watch(!diseases)
 		$de : DiseaseExpert ( $diseasePercentage : diseasePercentage >= 0.0, $symptomsSum : symptomsSum )
 		Number ( $sum1 : intValue) from accumulate(
 				Symptom(
@@ -128,10 +128,10 @@ rule "Sinusna infekcija"
 				) 		
 					Patient ( $diagnostics : diagnostics ) from $patient
 		Number ( $sum2 : intValue ) from accumulate (	
-					Diagnostic ( date.getTime()>=days60, $disease : disease ) from $diagnostics and
+					Diagnostic ( date.getTime()>=days60, $diseases : diseases ) from $diagnostics and
 					Disease ( 
 						id == 1 || id == 2
-					) from $disease,
+					) from $diseases,
 					
 					init ( int count = 0; ),
 					action ( count = 1; ),
@@ -145,37 +145,68 @@ rule "Sinusna infekcija"
 			$de.setDiseasePercentage(diseasePercentageNew);
 			$de.setSymptomsSum(sum);
 			Disease disease = diseaseService.getDisease(new Long(4));
-			modify($d) { setDisease(disease); }
+			modify($d) { getDiseases().clear(), getDiseases().add(disease); }
 		}		
 end
 
-rule "Hipertenzija"
-	agenda-group "disease"
+rule "Prva grupa bolesti end"
+	salience -100
+	agenda-group "disease1"
+	no-loop true
+	when
+		$de : DiseaseExpert ( diseasePercentage >= 0.0 )	
+	then
+		shed($de, DiseaseExpert.class);
+end	
+
+rule "Druga grupa bolesti start"
+	agenda-group "disease2"
 	salience 95
 	no-loop true
 	lock-on-active true
 	when
-		$d : Diagnostic ( $patient : patient ) @Watch(!disease)
+		$d : Diagnostic ( )
+	then
+		modify($d) { getDiseases().clear(); }
+end
+
+
+rule "Hipertenzija"
+	agenda-group "disease2"
+	salience 94
+	no-loop true
+	lock-on-active true
+	when
+		$d : Diagnostic ( $patient : patient, $diagnosticSymptoms : symptoms ) @Watch(!diseases)
 		Patient ( $diagnostics : diagnostics ) from $patient	
-		Number ( intValue >= 10) from accumulate (
+		Number ( $sum1 : intValue) from accumulate (
 				Diagnostic ( $symptoms : symptoms, date.getTime() > months6) from $diagnostics
 				and Symptom ( id == 23 ) from $symptoms,
 				init ( int count = 0; ),
 				action ( count = count + 1; ),
 				result ( count )
-			) 			
+			)
+		Number ( $sum2 : intValue) from accumulate (
+				Symptom(
+					id == 23
+				) from $diagnosticSymptoms,	
+				init ( int count = 0; ),
+				action ( count = 1; ),
+				result ( count )
+			)
+		eval($sum1+$sum2>=10)		
 	then
 		Disease disease = diseaseService.getDisease(new Long(5));
-		modify($d) { setDisease(disease); }		
+		modify($d) { getDiseases().add(disease); }
 end
 
 rule "Dijabetes"
-	agenda-group "disease"
-	salience 94
+	agenda-group "disease2"
+	salience 93
 	no-loop true
 	lock-on-active true
 	when
-		$d : Diagnostic ( $symptoms : symptoms ) @Watch(!disease)
+		$d : Diagnostic ( $symptoms : symptoms ) @Watch(!diseases)
 		Number ( $sum : intValue == 4) from accumulate(
 				Symptom(
 					id == 12 || id == 13 || id == 14 || id == 15
@@ -186,18 +217,29 @@ rule "Dijabetes"
 				) 			
 	then
 		Disease disease = diseaseService.getDisease(new Long(6));
-		modify($d) { setDisease(disease); }		
+		modify($d) { getDiseases().add(disease); }	
 end
 
-rule "Hronicna bubrezna povreda"
-	agenda-group "disease"
-	salience 93
+rule "Treca grupa bolesti start"
+	agenda-group "disease3"
+	salience 92
 	no-loop true
 	lock-on-active true
 	when
-		$d : Diagnostic ( $symptoms : symptoms, $patient : patient ) @Watch(!disease)
+		$d : Diagnostic ( )
+	then
+		modify($d) { getDiseases().clear(); }
+end
+
+rule "Hronicna bubrezna povreda"
+	agenda-group "disease3"
+	salience 91
+	no-loop true
+	lock-on-active true
+	when
+		$d : Diagnostic ( $symptoms : symptoms, $patient : patient ) @Watch(!diseases)
 		Patient ( $diagnostics : diagnostics ) from $patient
-		Number ( $sum : intValue) from accumulate(
+		Number ( $sum1 : intValue) from accumulate(
 				Symptom(
 					id == 14 || id == 16 || id == 17 || id == 18 || id == 19
 				) from $symptoms,		
@@ -205,26 +247,29 @@ rule "Hronicna bubrezna povreda"
 					action ( count = count + 1; ),
 					result ( count )
 				)
-		eval($sum>=2) and
-		(Diagnostic ( $disease1 : disease, date.getTime() <= months6 ) from $diagnostics and
-		Disease ( id == 5 ) from $disease1) or			
-		(Diagnostic ( $disease2 : disease ) from $diagnostics and
-		Disease ( id == 6 ) from $disease2)	
+		Number ( $sum2 : intValue) from accumulate(
+				Diagnostic ( $diseases1 : diseases, $date : date) from $diagnostics and
+				Disease ( id == 5 || (id == 6 && $date.getTime() <= months6) ) from $diseases1,
+					init ( int count = 0; ),
+					action ( count = count + 1; ),
+					result ( count )
+				)
+		eval($sum1 >= 2 && $sum2 >= 1)	
 	then
 		Disease disease = diseaseService.getDisease(new Long(7));
-		modify($d) { setDisease(disease); }	
+		modify($d) { getDiseases().clear(), getDiseases().add(disease); }
 			
 end
 
 rule "Akutna bubrezna povreda"
-	agenda-group "disease"
-	salience 92
+	agenda-group "disease3"
+	salience 90
 	no-loop true
 	lock-on-active true
 	when
-		$d : Diagnostic ( $symptoms : symptoms, $patient : patient ) @Watch(!disease)
+		$d : Diagnostic ( $symptoms : symptoms, $patient : patient ) @Watch(!diseases)
 		Patient ( $diagnostics : diagnostics ) from $patient
-		Number ( $sum : intValue) from accumulate(
+		Number ( intValue >= 2) from accumulate(
 				Symptom(
 					id == 14 || id == 17 || id == 18 || id == 20
 				) from $symptoms,		
@@ -232,10 +277,9 @@ rule "Akutna bubrezna povreda"
 					action ( count = count + 1; ),
 					result ( count )
 				)
-		eval($sum>=2) and
 		Symptom( id == 26 ) from $symptoms or
-		(Diagnostic ( $disease : disease, date.getTime() > days14 ) from $diagnostics and
-		Disease ( $diseaseSymptoms : diseaseSymptoms ) from $disease and
+		(Diagnostic ( $diseases : diseases, date.getTime() > days14 ) from $diagnostics and
+		Disease ( $diseaseSymptoms : diseaseSymptoms ) from $diseases and
 		DiseaseSymptom ( $symptom : symptom ) from $diseaseSymptoms and
 		Symptom ( id == 21 || id == 22) from $symptom ) or			
 		(Diagnostic ( $medications : medications, date.getTime() > days21) from $diagnostics and
@@ -244,17 +288,6 @@ rule "Akutna bubrezna povreda"
 		
 	then
 		Disease disease = diseaseService.getDisease(new Long(8));
-		modify($d) { setDisease(disease); }	
+		modify($d) { getDiseases().clear(), getDiseases().add(disease); }
 			
 end
-
-rule "Remove Disease Expert"
-	salience -100
-	agenda-group "disease"
-	no-loop true
-	when
-		$de : DiseaseExpert ( diseasePercentage >= 0.0 )	
-	then
-		shed($de, DiseaseExpert.class);
-end	
-

@@ -153,11 +153,13 @@ public class DiagnosticController {
 	
 	@PreAuthorize("hasAuthority('1')")
 	@RequestMapping(value="getMostLikelyDisease", method=RequestMethod.POST, consumes=MediaType.APPLICATION_JSON_VALUE, produces=MediaType.APPLICATION_JSON_VALUE)
-	public ResponseWrapper<Disease> getMostLikelyDisease(@RequestBody Diagnostic diagnostic, ServletRequest request){
+	public ResponseWrapper<ArrayList<Disease>> getMostLikelyDisease(@RequestBody Diagnostic diagnostic, ServletRequest request){
 		
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 	    String token = httpRequest.getHeader(this.tokenHeader);
 	    String username = tokenUtils.getUsernameFromToken(token);
+	    
+	    ArrayList<Disease> retVal = new ArrayList<Disease>();
 	    
 	    LoggedUser loggedUser = loggedUsers.getLoggedUsers().get(username);
 	    
@@ -168,14 +170,26 @@ public class DiagnosticController {
 	    kieSession.getAgenda().getAgendaGroup("necessary").setFocus();
 	    kieSession.fireAllRules();
 	    
-	    kieSession.getAgenda().getAgendaGroup("disease").setFocus();
+	    kieSession.getAgenda().getAgendaGroup("disease1").setFocus();
 	    kieSession.fireAllRules();
-	        
+	    
+	    retVal.addAll(diagnostic.getDiseases());
+	    
+	    kieSession.getAgenda().getAgendaGroup("disease2").setFocus();
+	    kieSession.fireAllRules();
+	    
+	    retVal.addAll(diagnostic.getDiseases());
+	    
+	    kieSession.getAgenda().getAgendaGroup("disease3").setFocus();
+	    kieSession.fireAllRules();
+	    
+	    retVal.addAll(diagnostic.getDiseases());
+	    
         for (FactHandle factHandle : kieSession.getFactHandles()) {
             kieSession.delete(factHandle);
         }
 	    
-		return new ResponseWrapper<Disease>(diagnostic.getDisease() ,true,"Uspesno dovucena bolest.");	
+		return new ResponseWrapper<ArrayList<Disease>>(retVal, true,"Uspesno dovucena bolest.");	
 	}
 	
 	@PreAuthorize("hasAuthority('1')")

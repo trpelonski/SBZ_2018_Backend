@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.dto.MedicationDTO;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.dto.ResponseWrapper;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Antibiotic;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Diagnostic;
@@ -72,7 +73,7 @@ public class DiagnosticController {
 	
 	@Autowired
 	private LoggedUsers loggedUsers;
-		
+	
 	@Value("${utils.token.header}")
     private String tokenHeader;
 	
@@ -239,6 +240,28 @@ public class DiagnosticController {
 		
 		return new ResponseWrapper<ArrayList<Disease>>(diseases, true, "Uspesno vracene bolesti");
 	}
+	
+	@RequestMapping(value="checkAllergicTo", method=RequestMethod.POST, consumes=MediaType.APPLICATION_JSON_VALUE, produces=MediaType.APPLICATION_JSON_VALUE)
+	public ResponseWrapper<MedicationDTO>checkAllergicTo(@RequestBody MedicationDTO medicationDTO, ServletRequest request) {
+		
+		HttpServletRequest httpRequest = (HttpServletRequest) request;
+	    String token = httpRequest.getHeader(this.tokenHeader);
+	    String username = tokenUtils.getUsernameFromToken(token);
+	    
+	    LoggedUser loggedUser = loggedUsers.getLoggedUsers().get(username);
+	    
+	    KieSession kieSession = loggedUser.getKieSessions().get("medicationsSession");
+	    kieSession.insert(medicationDTO);
+		
+	    kieSession.fireAllRules();
+	    
+	    for (FactHandle factHandle : kieSession.getFactHandles()) {
+            kieSession.delete(factHandle);
+        }
+	    
+		return new ResponseWrapper<MedicationDTO>(medicationDTO,true,"Uspesno vraceni lekovi na koje je pacijent alergican.");
+	}
+	
 		
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private HashMap sortByValues(HashMap map) { 

@@ -6,4 +6,7 @@
     <kbase name="rules2" packages="rules2">
         <ksession name="medicationsSession"/>
     </kbase>
+    <kbase name="rules3" packages="rules3">
+        <ksession name="reportSession"/>
+    </kbase>
 </kmodule>

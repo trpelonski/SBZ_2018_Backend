@@ -62,9 +62,15 @@ public class LoginController {
     	
     	KieSession kSession2 = kieContainer.newKieSession("medicationsSession");
     	
+    	KieSession kSession3 = kieContainer.newKieSession("reportSession");
+    	kSession3.setGlobal("months6", System.currentTimeMillis()-TimeUnit.DAYS.toMillis(6*31));    	
+    	kSession3.setGlobal("months12", System.currentTimeMillis()-TimeUnit.DAYS.toMillis(12*31));
+    	kSession3.setGlobal("years2", System.currentTimeMillis()-TimeUnit.DAYS.toMillis(24*31));
+    	
     	HashMap<String,KieSession> kieSessions = new HashMap<String,KieSession>();
     	kieSessions.put("rulesSession", kSession1);
     	kieSessions.put("medicationsSession", kSession2);
+    	kieSessions.put("reportSession", kSession3);
     	
     	LoggedUser loggedUser = new LoggedUser(user.getUsername(), kieSessions);
 		loggedUsers.getLoggedUsers().put(loggedUser.getUsername(), loggedUser);

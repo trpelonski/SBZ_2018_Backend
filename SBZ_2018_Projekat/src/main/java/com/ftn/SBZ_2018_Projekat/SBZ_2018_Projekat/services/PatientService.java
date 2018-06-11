@@ -1,5 +1,7 @@
 package com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.services;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -7,6 +9,7 @@ import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Patient;
 
 public interface PatientService {
 
+	public List<Patient> getAllPatients();
 	public Patient findByStringId(String stringId);
 	public Patient insertPatient(Patient patient);
 	public Page<Patient> getAllPatients(Pageable pageable);

@@ -1,0 +1,72 @@
+package rules3
+
+import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Patient;
+import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Antibiotic;
+import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.AntibioticType;
+import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Diagnostic;
+import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Disease;
+import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.dto.ReportDTO;
+
+global Long months6;
+global Long months12;
+global Long years2;
+
+rule "Sa potencijalnim hronicnim oboljenjima"
+	agenda-group "report1"
+	no-loop true
+	lock-on-active true
+	when
+		$r : ReportDTO( $allPatients : allPatients )
+		$p : Patient ( $diagnostics : diagnostics ) from $allPatients
+		Diagnostic ( date.getTime() >= years2, $diseases1 : diseases) from $diagnostics
+		Disease ( $id : id) from $diseases1
+		Number ( intValue > 5) from accumulate(
+			Diagnostic(date.getTime() >= years2, $diseases2 : diseases ) from $diagnostics and
+			Disease ( id == $id && id != 1 && id != 2 ) from $diseases2,
+			
+				init ( int count = 0; ),
+				action ( count = count + 1; ),
+				result ( count )
+			) 		
+	then
+		modify ($r) { addSelectedPatient($p); }
+end
+
+rule "Potencijalni zavisnici"
+	agenda-group "report2"
+	no-loop true
+	lock-on-active true
+	when
+		$r : ReportDTO( $allPatients : allPatients )
+		$p : Patient ( $diagnostics : diagnostics ) from $allPatients
+		accumulate(
+			$diagnostic : Diagnostic ( date.getTime() >= months6, $medications : medications, $doctor : doctor) from $diagnostics and
+			Antibiotic ( $type : type ) from $medications and
+			AntibioticType ( id==2 ) from $type,	
+				$sum : collectSet($diagnostic),
+				$doctors : collectSet($doctor)			
+			)
+			eval($sum.size() >= 6 && $doctors.size() >= 3)
+	then	
+		modify ($r) { addSelectedPatient($p); }
+end
+
+rule "Oslabljeni imunitet"
+	agenda-group "report3"
+	no-loop true
+	lock-on-active true
+	when
+		$r : ReportDTO( $allPatients : allPatients )
+		$p : Patient ( $diagnostics : diagnostics ) from $allPatients
+		accumulate(
+			$diagnostic : Diagnostic ( date.getTime() >= months6, $medications : medications, $doctor : doctor) from $diagnostics and
+			Antibiotic ( $type : type ) from $medications and
+			AntibioticType ( id==2 ) from $type,	
+				$sum : collectSet($diagnostic),
+				$doctors : collectSet($doctor)			
+			)
+			eval($sum.size() >= 6 && $doctors.size() >= 3)
+	then	
+		modify ($r) { addSelectedPatient($p); }
+end
+

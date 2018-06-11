@@ -1,5 +1,7 @@
 package com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.services;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +15,11 @@ public class PatientServiceImpl implements PatientService {
 
 	@Autowired
 	private PatientRepository patientRepository;
+	
+	@Override
+	public List<Patient> getAllPatients() {
+		return patientRepository.findAll();
+	}
 	
 	@Override
 	public Patient findByStringId(String stringId) {

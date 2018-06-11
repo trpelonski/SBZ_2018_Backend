@@ -9,8 +9,14 @@ import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.AntibioticType;
 
 public interface AntibioticRepository extends JpaRepository<Antibiotic,Long>{
 	
-	public Page<Antibiotic> findByNameLikeIgnoreCase(String name, Pageable pageable);
+	public Page<Antibiotic> findAllByOrderByNameAsc(Pageable pageable);
 	
-	public Page<Antibiotic> findByType(AntibioticType type, Pageable pageable);
+	public Page<Antibiotic> findByNameLikeIgnoreCaseOrderByNameAsc(String name, Pageable pageable);
+	
+	public Page<Antibiotic> findByTypeOrderByNameAsc(AntibioticType type, Pageable pageable);
+	
+	public Long countByNameLikeIgnoreCase(String name);
+	
+	public Long countByType(AntibioticType type);
 	
 }

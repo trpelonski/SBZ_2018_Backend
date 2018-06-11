@@ -8,4 +8,6 @@ public interface DiagnosticService {
 
 	public ArrayList<Diagnostic> getAllByPatient(Long id);
 	
+	public Diagnostic insertDiagnostic(Diagnostic diagnostic);
+	
 }

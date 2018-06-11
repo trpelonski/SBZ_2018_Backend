@@ -19,4 +19,9 @@ public class DiagnosticServiceImpl implements DiagnosticService{
 		return diagnosticRepository.findAllByPatientId(id);
 	}
 
+	@Override
+	public Diagnostic insertDiagnostic(Diagnostic diagnostic) {
+		return diagnosticRepository.save(diagnostic);
+	}
+
 }

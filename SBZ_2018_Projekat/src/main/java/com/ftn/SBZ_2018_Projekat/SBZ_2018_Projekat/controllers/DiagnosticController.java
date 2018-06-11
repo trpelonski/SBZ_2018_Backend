@@ -1,8 +1,12 @@
 package com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.controllers;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -36,6 +40,7 @@ import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Disease;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.DiseaseSymptom;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Patient;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Symptom;
+import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.User;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.security.TokenUtils;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.services.AntibioticService;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.services.DiagnosticService;
@@ -43,6 +48,7 @@ import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.services.DiseaseService;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.services.DiseaseSymptomService;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.services.PatientService;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.services.SymptomService;
+import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.services.UserService;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.userDetails.LoggedUser;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.userDetails.LoggedUsers;
 
@@ -67,6 +73,9 @@ public class DiagnosticController {
 	
 	@Autowired
 	private AntibioticService antibioticService;
+	
+	@Autowired
+	private UserService userService;
 	
 	@Autowired
 	private TokenUtils tokenUtils;
@@ -144,12 +153,51 @@ public class DiagnosticController {
 	}
 	
 	@PreAuthorize("hasAuthority('1')")
-	@RequestMapping(value="getMedications", method=RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
-	public ResponseWrapper<ArrayList<Antibiotic>> getMedications(){
+	@RequestMapping(value="getMedications/{page}", method=RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
+	public ResponseWrapper<Page<Antibiotic>> getMedications(@PathVariable int page){
 		
-		ArrayList<Antibiotic> medications = antibioticService.findAllAntibiotics();
+		Long antibioticCount = antibioticService.countAllAntibiotics();
 		
-		return new ResponseWrapper<ArrayList<Antibiotic>>(medications,true,"Uspesno dovuceni lekovi");
+		if(antibioticCount<=0) {
+			return new ResponseWrapper<Page<Antibiotic>>(null, false, "Ne postoji ni jedan lek u sistemu.");
+		}else if(page<=0) {
+			return new ResponseWrapper<Page<Antibiotic>>(null, false, "Nevalidno unet broj stranica.");
+		}
+		
+		int poslednja = (int)Math.ceil(antibioticCount/10)+1;
+		Page<Antibiotic> medications = null;
+			
+		if(page>poslednja) {
+			medications = antibioticService.findAllAntibiotics(new PageRequest(poslednja-1, 10));
+		}else {
+			medications = antibioticService.findAllAntibiotics(new PageRequest(page-1, 10));
+		}
+			
+		return new ResponseWrapper<Page<Antibiotic>>(medications,true,"Uspesno dovuceni lekovi");
+	}
+	
+	@PreAuthorize("hasAuthority('1')")
+	@RequestMapping(value="findMedications/{page}", method=RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
+	public ResponseWrapper<Page<Antibiotic>> findMedications(@PathVariable int page, @RequestParam(value = "name", required = true) String name){
+		
+		Long antibioticCount = antibioticService.countByNameLikeIgnoreCase(name);
+		
+		if(antibioticCount<=0) {
+			return new ResponseWrapper<Page<Antibiotic>>(null, false, "Ne postoji ni jedan lek u sistemu.");
+		}else if(page<=0) {
+			return new ResponseWrapper<Page<Antibiotic>>(null, false, "Nevalidno unet broj stranica.");
+		}
+		
+		int poslednja = (int)Math.ceil(antibioticCount/10)+1;
+		Page<Antibiotic> medications = null;
+			
+		if(page>poslednja) {
+			medications = antibioticService.findByNameLikeIgnoreCase(name, new PageRequest(poslednja-1, 10));
+		}else {
+			medications = antibioticService.findByNameLikeIgnoreCase(name, new PageRequest(page-1, 10));
+		}
+			
+		return new ResponseWrapper<Page<Antibiotic>>(medications,true,"Uspesno dovuceni lekovi");
 	}
 	
 	@PreAuthorize("hasAuthority('1')")
@@ -241,6 +289,7 @@ public class DiagnosticController {
 		return new ResponseWrapper<ArrayList<Disease>>(diseases, true, "Uspesno vracene bolesti");
 	}
 	
+	@PreAuthorize("hasAuthority('1')")
 	@RequestMapping(value="checkAllergicTo", method=RequestMethod.POST, consumes=MediaType.APPLICATION_JSON_VALUE, produces=MediaType.APPLICATION_JSON_VALUE)
 	public ResponseWrapper<MedicationDTO>checkAllergicTo(@RequestBody MedicationDTO medicationDTO, ServletRequest request) {
 		
@@ -262,6 +311,35 @@ public class DiagnosticController {
 		return new ResponseWrapper<MedicationDTO>(medicationDTO,true,"Uspesno vraceni lekovi na koje je pacijent alergican.");
 	}
 	
+	@PreAuthorize("hasAuthority('1')")
+	@RequestMapping(value="createDiagnostic", method=RequestMethod.POST, consumes=MediaType.APPLICATION_JSON_VALUE, produces=MediaType.APPLICATION_JSON_VALUE)
+	public ResponseWrapper<Diagnostic> createDiagnostic(@RequestBody Diagnostic diagnostic, ServletRequest request){
+		
+		Date date = new Date();
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		
+		try {
+			date = dateFormat.parse(dateFormat.format(date));
+		} catch (ParseException e) {
+			return new ResponseWrapper<Diagnostic>(null,false,"Neuspesno unesena dijagnostika.");
+		}
+			
+		diagnostic.setDate(date);
+		
+		HttpServletRequest httpRequest = (HttpServletRequest) request;
+	    String token = httpRequest.getHeader(this.tokenHeader);
+	    String username = tokenUtils.getUsernameFromToken(token);
+		
+	    User doctor = userService.findByUsername(username);
+	    
+	    diagnostic.setDoctor(doctor);
+	    
+		diagnostic = diagnosticService.insertDiagnostic(diagnostic);
+		if(diagnostic==null) {
+			return new ResponseWrapper<Diagnostic>(null,false,"Neuspesno unesena dijagnostika.");
+		}
+		return new ResponseWrapper<Diagnostic>(diagnostic,true,"Uspesno unesena dijagnostika.");
+	}	
 		
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private HashMap sortByValues(HashMap map) { 

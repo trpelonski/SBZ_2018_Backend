@@ -18,18 +18,28 @@ public class AntibioticServiceImpl implements AntibioticService{
 	private AntibioticRepository antibioticRepository;
 	
 	@Override
-	public ArrayList<Antibiotic> findAllAntibiotics() {
-		return (ArrayList<Antibiotic>) antibioticRepository.findAll();
+	public Page<Antibiotic> findAllAntibiotics(Pageable pageable) {
+		return antibioticRepository.findAllByOrderByNameAsc(pageable);
 	}
 
 	@Override
 	public Page<Antibiotic> findByNameLikeIgnoreCase(String name, Pageable pageable) {
-		return antibioticRepository.findByNameLikeIgnoreCase(name, pageable);
+		return antibioticRepository.findByNameLikeIgnoreCaseOrderByNameAsc(name+"%", pageable);
 	}
 
 	@Override
 	public Page<Antibiotic> findByType(AntibioticType type, Pageable pageable) {
-		return antibioticRepository.findByType(type, pageable);
+		return antibioticRepository.findByTypeOrderByNameAsc(type, pageable);
+	}
+
+	@Override
+	public Long countAllAntibiotics() {
+		return antibioticRepository.count();
+	}
+
+	@Override
+	public Long countByNameLikeIgnoreCase(String name) {
+		return antibioticRepository.countByNameLikeIgnoreCase(name+"%");
 	}
 
 }

@@ -47,9 +47,12 @@ public class Diagnostic implements Serializable{
 	@ManyToOne(optional=false)
 	private User doctor;
 	
+	@Column(nullable = true, length=500)
+	private String description;
+	
 	public Diagnostic() {}
 
-	public Diagnostic(Long id, Date date, Patient patient, Set<Disease> diseases, Set<Antibiotic> medications, User doctor, Set<Symptom> symptoms) {
+	public Diagnostic(Long id, Date date, Patient patient, Set<Disease> diseases, Set<Antibiotic> medications, User doctor, Set<Symptom> symptoms, String description) {
 		super();
 		this.id = id;
 		this.date = date;
@@ -58,6 +61,7 @@ public class Diagnostic implements Serializable{
 		this.medications = medications;
 		this.doctor = doctor;
 		this.symptoms = symptoms;
+		this.description = description;
 	}
 
 	public Long getId() {
@@ -115,10 +119,19 @@ public class Diagnostic implements Serializable{
 	public void setSymptoms(Set<Symptom> symptoms) {
 		this.symptoms = symptoms;
 	}
+	
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
 
 	@Override
 	public String toString() {
 		return "Diagnostic [id=" + id + ", date=" + date + ", patient=" + patient + ", diseases=" + diseases
-				+ ", medications=" + medications + ", symptoms=" + symptoms + ", doctor=" + doctor + "]";
+				+ ", medications=" + medications + ", symptoms=" + symptoms + ", doctor=" + doctor + ", description="
+				+ description + "]";
 	}
 }

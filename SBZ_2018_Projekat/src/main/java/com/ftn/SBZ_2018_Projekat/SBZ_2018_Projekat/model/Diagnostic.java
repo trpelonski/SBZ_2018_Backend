@@ -6,11 +6,13 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
 import org.drools.core.factmodel.traits.Traitable;
 import org.kie.api.definition.type.PropertyReactive;
@@ -36,12 +38,6 @@ public class Diagnostic implements Serializable{
 	private Patient patient;
 	
 	@ManyToMany
-	private Set<Disease> diseases;
-	
-	@ManyToMany
-	private Set<Antibiotic> medications;
-	
-	@ManyToMany
 	private Set<Symptom> symptoms;
 	
 	@ManyToOne(optional=false)
@@ -50,18 +46,20 @@ public class Diagnostic implements Serializable{
 	@Column(nullable = true, length=500)
 	private String description;
 	
+	@OneToMany(mappedBy="diagnostic", fetch=FetchType.EAGER)
+	private Set<DiagnosticDisease> diagnosticDiseases;
+	
 	public Diagnostic() {}
 
-	public Diagnostic(Long id, Date date, Patient patient, Set<Disease> diseases, Set<Antibiotic> medications, User doctor, Set<Symptom> symptoms, String description) {
+	public Diagnostic(Long id, Date date, Patient patient, User doctor, Set<Symptom> symptoms, String description, Set<DiagnosticDisease> diagnosticDiseases) {
 		super();
 		this.id = id;
 		this.date = date;
 		this.patient = patient;
-		this.diseases = diseases;
-		this.medications = medications;
 		this.doctor = doctor;
 		this.symptoms = symptoms;
 		this.description = description;
+		this.diagnosticDiseases = diagnosticDiseases;
 	}
 
 	public Long getId() {
@@ -88,22 +86,6 @@ public class Diagnostic implements Serializable{
 		this.patient = patient;
 	}
 
-	public Set<Disease> getDiseases() {
-		return diseases;
-	}
-
-	public void setDiseases(Set<Disease> diseases) {
-		this.diseases = diseases;
-	}
-
-	public Set<Antibiotic> getMedications() {
-		return medications;
-	}
-
-	public void setMedications(Set<Antibiotic> medications) {
-		this.medications = medications;
-	}
-
 	public User getDoctor() {
 		return doctor;
 	}
@@ -127,11 +109,19 @@ public class Diagnostic implements Serializable{
 	public void setDescription(String description) {
 		this.description = description;
 	}
+	
+	public Set<DiagnosticDisease> getDiagnosticDiseases() {
+		return diagnosticDiseases;
+	}
+
+	public void setDiagnosticDiseases(Set<DiagnosticDisease> diagnosticDiseases) {
+		this.diagnosticDiseases = diagnosticDiseases;
+	}
 
 	@Override
 	public String toString() {
-		return "Diagnostic [id=" + id + ", date=" + date + ", patient=" + patient + ", diseases=" + diseases
-				+ ", medications=" + medications + ", symptoms=" + symptoms + ", doctor=" + doctor + ", description="
-				+ description + "]";
+		return "Diagnostic [id=" + id + ", date=" + date + ", patient=" + patient + ", symptoms=" + symptoms
+				+ ", doctor=" + doctor + ", description=" + description + ", diagnosticDiseases=" + diagnosticDiseases
+				+ "]";
 	}
 }

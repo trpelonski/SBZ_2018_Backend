@@ -4,6 +4,7 @@ import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Diagnostic;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Symptom;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Disease;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.DiseaseSymptom;
+import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.DiagnosticDisease;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Patient;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Antibiotic;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.AntibioticType;
@@ -25,7 +26,7 @@ rule "Prva grupa bolesti start"
 	salience 100
 	no-loop true
 	when
-		$d : Diagnostic ( diseases.isEmpty() )
+		$d : Diagnostic ( diagnosticDiseases.isEmpty() )
 	then
 		DiseaseExpert diseaseExpert = don($d, DiseaseExpert.class);
 		diseaseExpert.setDiseasePercentage(0.0);
@@ -38,7 +39,7 @@ rule "Prehlada"
 	no-loop true
 	lock-on-active true
 	when
-		$d : Diagnostic ( $symptoms : symptoms ) @Watch(!diseases)
+		$d : Diagnostic ( $symptoms : symptoms )
 		$de : DiseaseExpert ( $diseasePercentage : diseasePercentage >= 0.0, $symptomsSum : symptomsSum )
 		Number ( $sum : intValue >= 4) from accumulate(
 				Symptom(
@@ -54,7 +55,8 @@ rule "Prehlada"
 			$de.setDiseasePercentage(diseasePercentageNew);
 			$de.setSymptomsSum($sum);
 			Disease disease = diseaseService.getDisease(new Long(1));
-			modify($d) { getDiseases().clear(), getDiseases().add(disease); }
+			DiagnosticDisease diagnosticDisease = new DiagnosticDisease(disease);
+			modify($d) { getDiagnosticDiseases().clear(), getDiagnosticDiseases().add(diagnosticDisease); }
 		}		
 end
 
@@ -64,7 +66,7 @@ rule "Groznica"
 	no-loop true
 	lock-on-active true
 	when
-		$d : Diagnostic ( $symptoms : symptoms ) @Watch(!diseases)
+		$d : Diagnostic ( $symptoms : symptoms )
 		$de : DiseaseExpert ( $diseasePercentage : diseasePercentage >= 0.0, $symptomsSum : symptomsSum )
 		Number ( $sum : intValue >= 4) from accumulate(
 				Symptom(
@@ -80,7 +82,8 @@ rule "Groznica"
 			$de.setDiseasePercentage(diseasePercentageNew);
 			$de.setSymptomsSum($sum);
 			Disease disease = diseaseService.getDisease(new Long(2));
-			modify($d) { getDiseases().clear(), getDiseases().add(disease); }
+			DiagnosticDisease diagnosticDisease = new DiagnosticDisease(disease);
+			modify($d) { getDiagnosticDiseases().clear(), getDiagnosticDiseases().add(diagnosticDisease); }
 		}		
 end
 
@@ -90,7 +93,7 @@ rule "Upala krajnika"
 	no-loop true
 	lock-on-active true
 	when
-		$d : Diagnostic ( $symptoms : symptoms ) @Watch(!diseases)
+		$d : Diagnostic ( $symptoms : symptoms )
 		$de : DiseaseExpert ( $diseasePercentage : diseasePercentage >= 0.0, $symptomsSum : symptomsSum )
 		Number ( $sum : intValue >= 4) from accumulate(
 				Symptom(
@@ -106,7 +109,8 @@ rule "Upala krajnika"
 			$de.setDiseasePercentage(diseasePercentageNew);
 			$de.setSymptomsSum($sum);
 			Disease disease = diseaseService.getDisease(new Long(3));
-			modify($d) { getDiseases().clear(), getDiseases().add(disease); }
+			DiagnosticDisease diagnosticDisease = new DiagnosticDisease(disease);
+			modify($d) { getDiagnosticDiseases().clear(), getDiagnosticDiseases().add(diagnosticDisease); }
 		}		
 end
 
@@ -116,7 +120,7 @@ rule "Sinusna infekcija"
 	no-loop true
 	lock-on-active true
 	when
-		$d : Diagnostic ( $symptoms : symptoms, $patient : patient ) @Watch(!diseases)
+		$d : Diagnostic ( $symptoms : symptoms, $patient : patient )
 		$de : DiseaseExpert ( $diseasePercentage : diseasePercentage >= 0.0, $symptomsSum : symptomsSum )
 		Number ( $sum1 : intValue) from accumulate(
 				Symptom(
@@ -128,10 +132,11 @@ rule "Sinusna infekcija"
 				) 		
 					Patient ( $diagnostics : diagnostics ) from $patient
 		Number ( $sum2 : intValue ) from accumulate (	
-					Diagnostic ( date.getTime()>=days60, $diseases : diseases ) from $diagnostics and
+					Diagnostic ( date.getTime()>=days60, $diagnosticDiseases : diagnosticDiseases ) from $diagnostics and
+					DiagnosticDisease ( $disease : disease ) from $diagnosticDiseases and
 					Disease ( 
 						id == 1 || id == 2
-					) from $diseases,
+					) from $disease,
 					
 					init ( int count = 0; ),
 					action ( count = 1; ),
@@ -145,7 +150,8 @@ rule "Sinusna infekcija"
 			$de.setDiseasePercentage(diseasePercentageNew);
 			$de.setSymptomsSum(sum);
 			Disease disease = diseaseService.getDisease(new Long(4));
-			modify($d) { getDiseases().clear(), getDiseases().add(disease); }
+			DiagnosticDisease diagnosticDisease = new DiagnosticDisease(disease);
+			modify($d) { getDiagnosticDiseases().clear(), getDiagnosticDiseases().add(diagnosticDisease); }
 		}		
 end
 
@@ -167,7 +173,7 @@ rule "Druga grupa bolesti start"
 	when
 		$d : Diagnostic ( )
 	then
-		modify($d) { getDiseases().clear(); }
+		modify($d) { getDiagnosticDiseases().clear(); }
 end
 
 
@@ -177,7 +183,7 @@ rule "Hipertenzija"
 	no-loop true
 	lock-on-active true
 	when
-		$d : Diagnostic ( $patient : patient, $diagnosticSymptoms : symptoms ) @Watch(!diseases)
+		$d : Diagnostic ( $patient : patient, $diagnosticSymptoms : symptoms )
 		Patient ( $diagnostics : diagnostics ) from $patient	
 		Number ( $sum1 : intValue) from accumulate (
 				Diagnostic ( $symptoms : symptoms, date.getTime() > months6) from $diagnostics
@@ -197,7 +203,8 @@ rule "Hipertenzija"
 		eval($sum1+$sum2>=10)		
 	then
 		Disease disease = diseaseService.getDisease(new Long(5));
-		modify($d) { getDiseases().add(disease); }
+		DiagnosticDisease diagnosticDisease = new DiagnosticDisease(disease);
+		modify($d) { getDiagnosticDiseases().add(diagnosticDisease); }
 end
 
 rule "Dijabetes"
@@ -206,7 +213,7 @@ rule "Dijabetes"
 	no-loop true
 	lock-on-active true
 	when
-		$d : Diagnostic ( $symptoms : symptoms ) @Watch(!diseases)
+		$d : Diagnostic ( $symptoms : symptoms )
 		Number ( $sum : intValue == 4) from accumulate(
 				Symptom(
 					id == 12 || id == 13 || id == 14 || id == 15
@@ -217,7 +224,8 @@ rule "Dijabetes"
 				) 			
 	then
 		Disease disease = diseaseService.getDisease(new Long(6));
-		modify($d) { getDiseases().add(disease); }	
+		DiagnosticDisease diagnosticDisease = new DiagnosticDisease(disease);
+		modify($d) { getDiagnosticDiseases().add(diagnosticDisease); }
 end
 
 rule "Treca grupa bolesti start"
@@ -228,7 +236,7 @@ rule "Treca grupa bolesti start"
 	when
 		$d : Diagnostic ( )
 	then
-		modify($d) { getDiseases().clear(); }
+		modify($d) { getDiagnosticDiseases().clear(); }
 end
 
 rule "Hronicna bubrezna povreda"
@@ -237,7 +245,7 @@ rule "Hronicna bubrezna povreda"
 	no-loop true
 	lock-on-active true
 	when
-		$d : Diagnostic ( $symptoms : symptoms, $patient : patient ) @Watch(!diseases)
+		$d : Diagnostic ( $symptoms : symptoms, $patient : patient )
 		Patient ( $diagnostics : diagnostics ) from $patient
 		Number ( $sum1 : intValue) from accumulate(
 				Symptom(
@@ -248,8 +256,9 @@ rule "Hronicna bubrezna povreda"
 					result ( count )
 				)
 		Number ( $sum2 : intValue) from accumulate(
-				Diagnostic ( $diseases1 : diseases, $date : date) from $diagnostics and
-				Disease ( id == 5 || (id == 6 && $date.getTime() <= months6) ) from $diseases1,
+				Diagnostic ( $diagnosticDiseases : diagnosticDiseases, $date : date) from $diagnostics and
+				DiagnosticDisease ( $disease : disease ) from $diagnosticDiseases and
+				Disease ( id == 5 || (id == 6 && $date.getTime() <= months6) ) from $disease,
 					init ( int count = 0; ),
 					action ( count = count + 1; ),
 					result ( count )
@@ -257,8 +266,8 @@ rule "Hronicna bubrezna povreda"
 		eval($sum1 >= 2 && $sum2 >= 1)	
 	then
 		Disease disease = diseaseService.getDisease(new Long(7));
-		modify($d) { getDiseases().clear(), getDiseases().add(disease); }
-			
+		DiagnosticDisease diagnosticDisease = new DiagnosticDisease(disease);
+		modify($d) { getDiagnosticDiseases().clear(), getDiagnosticDiseases().add(diagnosticDisease); }	
 end
 
 rule "Akutna bubrezna povreda"
@@ -267,7 +276,7 @@ rule "Akutna bubrezna povreda"
 	no-loop true
 	lock-on-active true
 	when
-		$d : Diagnostic ( $symptoms : symptoms, $patient : patient ) @Watch(!diseases)
+		$d : Diagnostic ( $symptoms : symptoms, $patient : patient )
 		Patient ( $diagnostics : diagnostics ) from $patient
 		Number ( intValue >= 2) from accumulate(
 				Symptom(
@@ -278,16 +287,18 @@ rule "Akutna bubrezna povreda"
 					result ( count )
 				)
 		Symptom( id == 26 ) from $symptoms or
-		(Diagnostic ( $diseases : diseases, date.getTime() > days14 ) from $diagnostics and
-		Disease ( $diseaseSymptoms : diseaseSymptoms ) from $diseases and
+		(Diagnostic ( $diagnosticDiseases : diagnosticDiseases, date.getTime() > days14 ) from $diagnostics and
+		DiagnosticDisease ( $disease : disease ) from $diagnosticDiseases and
+		Disease ( $diseaseSymptoms : diseaseSymptoms ) from $disease and
 		DiseaseSymptom ( $symptom : symptom ) from $diseaseSymptoms and
 		Symptom ( id == 21 || id == 22) from $symptom ) or			
-		(Diagnostic ( $medications : medications, date.getTime() > days21) from $diagnostics and
+		(Diagnostic ( $diagnosticDiseases : diagnosticDiseases, date.getTime() > days21) from $diagnostics and
+		DiagnosticDisease($medications : medications) from $diagnosticDiseases and
 		Antibiotic ( $type : type ) from $medications and
 		AntibioticType ( id==1 ) from $type)
 		
 	then
 		Disease disease = diseaseService.getDisease(new Long(8));
-		modify($d) { getDiseases().clear(), getDiseases().add(disease); }
-			
+		DiagnosticDisease diagnosticDisease = new DiagnosticDisease(disease);
+		modify($d) { getDiagnosticDiseases().clear(), getDiagnosticDiseases().add(diagnosticDisease); }	
 end

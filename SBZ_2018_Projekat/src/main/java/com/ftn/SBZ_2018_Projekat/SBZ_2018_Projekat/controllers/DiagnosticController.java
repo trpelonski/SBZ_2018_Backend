@@ -36,6 +36,7 @@ import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.dto.MedicationDTO;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.dto.ResponseWrapper;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Antibiotic;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Diagnostic;
+import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.DiagnosticDisease;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Disease;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.DiseaseSymptom;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Patient;
@@ -209,6 +210,7 @@ public class DiagnosticController {
 	    String username = tokenUtils.getUsernameFromToken(token);
 	    
 	    ArrayList<Disease> retVal = new ArrayList<Disease>();
+	    ArrayList<DiagnosticDisease> diagnosticDiseases = new ArrayList<DiagnosticDisease>();
 	    
 	    LoggedUser loggedUser = loggedUsers.getLoggedUsers().get(username);
 	    
@@ -222,22 +224,26 @@ public class DiagnosticController {
 	    kieSession.getAgenda().getAgendaGroup("disease1").setFocus();
 	    kieSession.fireAllRules();
 	    
-	    retVal.addAll(diagnostic.getDiseases());
+	    diagnosticDiseases.addAll(diagnostic.getDiagnosticDiseases());
 	    
 	    kieSession.getAgenda().getAgendaGroup("disease2").setFocus();
 	    kieSession.fireAllRules();
 	    
-	    retVal.addAll(diagnostic.getDiseases());
+	    diagnosticDiseases.addAll(diagnostic.getDiagnosticDiseases());
 	    
 	    kieSession.getAgenda().getAgendaGroup("disease3").setFocus();
 	    kieSession.fireAllRules();
 	    
-	    retVal.addAll(diagnostic.getDiseases());
+	    diagnosticDiseases.addAll(diagnostic.getDiagnosticDiseases());
 	    
         for (FactHandle factHandle : kieSession.getFactHandles()) {
             kieSession.delete(factHandle);
         }
 	    
+        for(DiagnosticDisease diagnosticDisease : diagnosticDiseases) {
+        	retVal.add(diagnosticDisease.getDisease());
+        }
+        
 		return new ResponseWrapper<ArrayList<Disease>>(retVal, true,"Uspesno dovucena bolest.");	
 	}
 	

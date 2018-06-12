@@ -6,12 +6,13 @@ import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.AntibioticType;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Diagnostic;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Disease;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.dto.ReportDTO;
+import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.DiagnosticDisease;
 
 global Long months6;
 global Long months12;
 global Long years2;
 
-rule "Sa potencijalnim hronicnim oboljenjima"
+/*rule "Sa potencijalnim hronicnim oboljenjima"
 	agenda-group "report1"
 	no-loop true
 	lock-on-active true
@@ -31,8 +32,8 @@ rule "Sa potencijalnim hronicnim oboljenjima"
 	then
 		modify ($r) { addSelectedPatient($p); }
 end
-
-rule "Potencijalni zavisnici"
+*/
+/*rule "Potencijalni zavisnici"
 	agenda-group "report2"
 	no-loop true
 	lock-on-active true
@@ -69,4 +70,4 @@ rule "Oslabljeni imunitet"
 	then	
 		modify ($r) { addSelectedPatient($p); }
 end
-
+*/

@@ -7,23 +7,26 @@ import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Diagnostic;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Disease;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.dto.ReportDTO;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.DiagnosticDisease;
+import java.util.Set;
 
 global Long months6;
 global Long months12;
 global Long years2;
 
-/*rule "Sa potencijalnim hronicnim oboljenjima"
+rule "Sa potencijalnim hronicnim oboljenjima"
 	agenda-group "report1"
 	no-loop true
 	lock-on-active true
 	when
 		$r : ReportDTO( $allPatients : allPatients )
 		$p : Patient ( $diagnostics : diagnostics ) from $allPatients
-		Diagnostic ( date.getTime() >= years2, $diseases1 : diseases) from $diagnostics
-		Disease ( $id : id) from $diseases1
+		Diagnostic ( date.getTime() >= years2, $diagnosticDiseases1 : diagnosticDiseases) from $diagnostics
+		DiagnosticDisease ( $disease1 : disease ) from $diagnosticDiseases1
+		Disease ( $id : id ) from $disease1
 		Number ( intValue > 5) from accumulate(
-			Diagnostic(date.getTime() >= years2, $diseases2 : diseases ) from $diagnostics and
-			Disease ( id == $id && id != 1 && id != 2 ) from $diseases2,
+			Diagnostic(date.getTime() >= years2, $diagnosticDiseases2 : diagnosticDiseases ) from $diagnostics and
+			DiagnosticDisease ( $disease2 : disease ) from $diagnosticDiseases2 and
+			Disease ( id == $id && id != 1 && id != 2 ) from $disease2,
 			
 				init ( int count = 0; ),
 				action ( count = count + 1; ),
@@ -32,8 +35,8 @@ global Long years2;
 	then
 		modify ($r) { addSelectedPatient($p); }
 end
-*/
-/*rule "Potencijalni zavisnici"
+
+rule "Potencijalni zavisnici"
 	agenda-group "report2"
 	no-loop true
 	lock-on-active true
@@ -41,7 +44,8 @@ end
 		$r : ReportDTO( $allPatients : allPatients )
 		$p : Patient ( $diagnostics : diagnostics ) from $allPatients
 		accumulate(
-			$diagnostic : Diagnostic ( date.getTime() >= months6, $medications : medications, $doctor : doctor) from $diagnostics and
+			$diagnostic : Diagnostic ( date.getTime() >= months6, $diagnosticDiseases : diagnosticDiseases, $doctor : doctor) from $diagnostics and
+			DiagnosticDisease ( $medications : medications ) from $diagnosticDiseases and
 			Antibiotic ( $type : type ) from $medications and
 			AntibioticType ( id==2 ) from $type,	
 				$sum : collectSet($diagnostic),
@@ -59,15 +63,38 @@ rule "Oslabljeni imunitet"
 	when
 		$r : ReportDTO( $allPatients : allPatients )
 		$p : Patient ( $diagnostics : diagnostics ) from $allPatients
-		accumulate(
-			$diagnostic : Diagnostic ( date.getTime() >= months6, $medications : medications, $doctor : doctor) from $diagnostics and
-			Antibiotic ( $type : type ) from $medications and
-			AntibioticType ( id==2 ) from $type,	
-				$sum : collectSet($diagnostic),
-				$doctors : collectSet($doctor)			
-			)
-			eval($sum.size() >= 6 && $doctors.size() >= 3)
-	then	
-		modify ($r) { addSelectedPatient($p); }
+		Number ( $sum1 : intValue )  from accumulate (
+		Diagnostic ( date.getTime() >= months12, $diagnosticDiseases1 : diagnosticDiseases) from $diagnostics and
+			Set ( size >= 2 ) from accumulate(		
+			DiagnosticDisease ( $id1 : id, $medications1 : medications ) from $diagnosticDiseases1 and
+			Antibiotic ( $type1 : type ) from $medications1 and
+			AntibioticType ( id==1 && $diagnosticDiseases1.size()>=2 ) from $type1,	
+				collectSet($id1)
+			);
+			init ( int count1 = 0; ),
+			action ( count1 = count1 + 1; ),
+			result ( count1 )	
+		)
+		Number ( $sum2 : intValue )  from accumulate (
+		Diagnostic ( date.getTime() >= months12, $diagnosticDiseases2 : diagnosticDiseases) from $diagnostics and
+			Set ( size == $diagnosticDiseases2.size() && $diagnosticDiseases2.size() != 0 ) from accumulate(		
+			DiagnosticDisease ( $id2 : id, $medications2 : medications ) from $diagnosticDiseases2 and
+			Antibiotic ( $type2 : type ) from $medications2 and
+			AntibioticType ( id==1 ) from $type2,	
+				collectSet($id2)
+			);
+			init ( int count2 = 0; ),
+			action ( count2 = count2 + 1; ),
+			result ( count2 )	
+		)
+		Number ( $sum3 : intValue ) from accumulate (
+		Diagnostic ( date.getTime() >= months12 && diagnosticDiseases.size() != 0 ) from $diagnostics,
+			init ( int count3 = 0; ),
+			action ( count3 = count3 + 1; ),
+			result ( count3 )		
+		)
+		eval ( $sum1 >= 10 || ( $sum2 == $sum3 && $sum3 != 0))
+		
+	then
+		modify ($r) { addSelectedPatient($p); }		
 end
-*/

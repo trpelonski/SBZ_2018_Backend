@@ -13,6 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -44,6 +45,7 @@ import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Symptom;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.User;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.security.TokenUtils;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.services.AntibioticService;
+import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.services.DiagnosticDiseaseService;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.services.DiagnosticService;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.services.DiseaseService;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.services.DiseaseSymptomService;
@@ -74,6 +76,9 @@ public class DiagnosticController {
 	
 	@Autowired
 	private AntibioticService antibioticService;
+	
+	@Autowired
+	private DiagnosticDiseaseService diagnosticDiseaseService;
 	
 	@Autowired
 	private UserService userService;
@@ -213,7 +218,6 @@ public class DiagnosticController {
 	    ArrayList<DiagnosticDisease> diagnosticDiseases = new ArrayList<DiagnosticDisease>();
 	    
 	    LoggedUser loggedUser = loggedUsers.getLoggedUsers().get(username);
-	    
 	    KieSession kieSession = loggedUser.getKieSessions().get("rulesSession");
 	    
 	    kieSession.insert(diagnostic);
@@ -236,13 +240,15 @@ public class DiagnosticController {
 	    
 	    diagnosticDiseases.addAll(diagnostic.getDiagnosticDiseases());
 	    
-        for (FactHandle factHandle : kieSession.getFactHandles()) {
-            kieSession.delete(factHandle);
+	    for(DiagnosticDisease diagnosticDisease : diagnosticDiseases) {
+	    	if(!containsDisease(retVal,diagnosticDisease.getDisease())) {
+	    		retVal.add(diagnosticDisease.getDisease());
+	    	} 	
         }
 	    
-        for(DiagnosticDisease diagnosticDisease : diagnosticDiseases) {
-        	retVal.add(diagnosticDisease.getDisease());
-        }
+        for (FactHandle factHandle : kieSession.getFactHandles()) {
+            kieSession.delete(factHandle);
+        }   
         
 		return new ResponseWrapper<ArrayList<Disease>>(retVal, true,"Uspesno dovucena bolest.");	
 	}
@@ -340,10 +346,20 @@ public class DiagnosticController {
 	    
 	    diagnostic.setDoctor(doctor);
 	    
+	    Set<DiagnosticDisease> diagnosticDiseases = diagnostic.getDiagnosticDiseases();
+	    
+	    diagnostic.setDiagnosticDiseases(null);
+	    
 		diagnostic = diagnosticService.insertDiagnostic(diagnostic);
 		if(diagnostic==null) {
 			return new ResponseWrapper<Diagnostic>(null,false,"Neuspesno unesena dijagnostika.");
 		}
+		
+		for(DiagnosticDisease diagnosticDisease : diagnosticDiseases) {		
+			diagnosticDisease.setDiagnostic(diagnostic);
+			diagnosticDiseaseService.insertDiagnosticDisease(diagnosticDisease);		
+		}
+		
 		return new ResponseWrapper<Diagnostic>(diagnostic,true,"Uspesno unesena dijagnostika.");
 	}	
 		
@@ -363,6 +379,16 @@ public class DiagnosticController {
 	              sortedHashMap.put(entry.getKey(), entry.getValue());
 	       } 
 	       return sortedHashMap;
+	}
+	
+	private boolean containsDisease(ArrayList<Disease> diseases, Disease disease) {
+		
+		for(Disease diseaseElement : diseases) {
+			if(diseaseElement.getId()==disease.getId()) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 }

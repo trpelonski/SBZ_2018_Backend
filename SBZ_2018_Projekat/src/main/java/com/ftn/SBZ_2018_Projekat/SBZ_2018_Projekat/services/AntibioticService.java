@@ -15,4 +15,7 @@ public interface AntibioticService {
 	public Page<Antibiotic> findByNameLikeIgnoreCase(String name, Pageable pageable);
 	public Long countByNameLikeIgnoreCase(String name);
 	public Page<Antibiotic> findByType(AntibioticType type, Pageable pageable);
+	public Antibiotic insertAntibiotic(Antibiotic antibiotic);
+	public Antibiotic updateAntibiotic(Antibiotic antibiotic);
+	public void deleteAntibiotic(Long id);
 }

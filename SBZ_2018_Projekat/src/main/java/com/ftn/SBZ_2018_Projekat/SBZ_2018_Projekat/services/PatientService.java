@@ -16,5 +16,7 @@ public interface PatientService {
 	public Long countAllPatients();
 	public Page<Patient> getAllPatientsByFirstNameAndLastName(String name, Pageable pageable);
 	public Long countPatientsByFirstNameAndLastName(String name);
-
+	public Patient updatePatient(Patient patient);
+	public void deletePatient(Long id);
+	
 }

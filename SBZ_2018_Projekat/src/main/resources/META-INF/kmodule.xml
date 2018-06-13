@@ -9,4 +9,8 @@
     <kbase name="rules3" packages="rules3">
         <ksession name="reportSession"/>
     </kbase>
+    <kbase name="eventRules" eventProcessingMode="stream" packages="eventRules">
+        <!-- <ksession name="cepConfigKsessionPseudoClock" clockType="pseudo"/> -->
+        <ksession name="eventSession" clockType="realtime"/>
+    </kbase>
 </kmodule>

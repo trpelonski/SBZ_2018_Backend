@@ -42,4 +42,19 @@ public class AntibioticServiceImpl implements AntibioticService{
 		return antibioticRepository.countByNameLikeIgnoreCase(name+"%");
 	}
 
+	@Override
+	public Antibiotic insertAntibiotic(Antibiotic antibiotic) {
+		return antibioticRepository.save(antibiotic);
+	}
+
+	@Override
+	public Antibiotic updateAntibiotic(Antibiotic antibiotic) {
+		return antibioticRepository.save(antibiotic);
+	}
+
+	@Override
+	public void deleteAntibiotic(Long id) {
+		antibioticRepository.delete(id);
+	}
+
 }

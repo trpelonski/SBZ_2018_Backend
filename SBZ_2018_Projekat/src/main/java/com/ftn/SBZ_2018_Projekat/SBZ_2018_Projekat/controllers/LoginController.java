@@ -1,6 +1,8 @@
 package com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.controllers;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Timer;
 import java.util.concurrent.TimeUnit;
 
 import org.kie.api.KieServices;
@@ -14,9 +16,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.dto.ResponseWrapper;
+import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.events.IntensiveCareTimerTask;
+import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Patient;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.User;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.security.TokenUtils;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.services.DiseaseService;
+import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.services.PatientService;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.services.UserService;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.userDetails.CustomUserDetailsFactory;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.userDetails.LoggedUser;
@@ -33,6 +38,9 @@ public class LoginController {
 	private DiseaseService diseaseService;
 	
 	@Autowired
+	private PatientService patientService;
+	
+	@Autowired
 	private TokenUtils tokenUtils;
 	
 	@Autowired
@@ -46,7 +54,7 @@ public class LoginController {
 		
 		user = userService.findByUsernameAndPassword(user.getUsername(), user.getPassword());
 		String token = null;
-	
+		
 		if(user==null) {
 			return new ResponseWrapper<String>(null,false,"Neispravno uneseno korisnicko ime ili lozinka.");
 		}else {
@@ -71,7 +79,20 @@ public class LoginController {
     	kieSessions.put("rulesSession", kSession1);
     	kieSessions.put("medicationsSession", kSession2);
     	kieSessions.put("reportSession", kSession3);
+
+    	KieSession kSession4 = kieContainer.newKieSession("eventSession");
     	
+    	//kSession4.fireUntilHalt();
+    	
+    	ArrayList<Patient> patients = (ArrayList<Patient>) patientService.getAllPatients();
+    	
+    	kSession4.insert(patients.get(3));
+    	   	
+    	Timer timer = new Timer();
+    	timer.scheduleAtFixedRate(new IntensiveCareTimerTask(patients,kSession4), 1000, 100);
+    	
+    	
+    		
     	LoggedUser loggedUser = new LoggedUser(user.getUsername(), kieSessions);
 		loggedUsers.getLoggedUsers().put(loggedUser.getUsername(), loggedUser);
 		

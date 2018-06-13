@@ -54,6 +54,16 @@ public class PatientServiceImpl implements PatientService {
 	public Long countPatientsByFirstNameAndLastName(String name) {
 		return patientRepository.countByFirstNameAndLastName(name.trim()+"%");
 	}
+	
+	@Override
+	public Patient updatePatient(Patient patient) {
+		return patientRepository.save(patient);
+	}
+
+	@Override
+	public void deletePatient(Long id) {
+		patientRepository.delete(id);	
+	}
 
 	private String createStringId(Long id) {
 		
@@ -67,4 +77,5 @@ public class PatientServiceImpl implements PatientService {
 		
 		return retVal;
 	}
+
 }

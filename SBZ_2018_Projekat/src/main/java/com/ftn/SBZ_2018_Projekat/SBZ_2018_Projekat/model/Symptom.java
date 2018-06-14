@@ -33,7 +33,7 @@ public class Symptom implements Serializable{
 	private Boolean toShow;
 	
 	@OneToMany(mappedBy="symptom", fetch=FetchType.EAGER, cascade = {CascadeType.REMOVE})
-	@JsonBackReference
+	@JsonBackReference(value="diseaseSymptoms-info")
 	private Set<DiseaseSymptom> diseaseSymptoms;
 	
 	@ManyToMany(cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.PERSIST}, targetEntity=Diagnostic.class)
@@ -42,7 +42,7 @@ public class Symptom implements Serializable{
 	        inverseJoinColumns = { @JoinColumn(name = "diagnostic_id") }, 
 	        joinColumns = { @JoinColumn(name = "symptoms_id") }
 	    )
-	@JsonBackReference
+	@JsonBackReference(value="diagnostics-info")
 	private Set<Diagnostic> diagnostics;
 	
 	public Symptom() {}

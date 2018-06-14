@@ -12,6 +12,7 @@ public interface UserService {
 	public User insertUser(User user);
 	public User updateUser(User user);
 	public void deleteUser(Long id);
-	public Page<User> getUsers(Pageable pageable);
-	public Long countUsers();
+	public Page<User> getUsers(String username, Pageable pageable);
+	public Long countUsers(String username);
+	public User findById(Long id);
 }

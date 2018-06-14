@@ -2,13 +2,19 @@ package com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 public class User implements Serializable{
@@ -28,8 +34,11 @@ public class User implements Serializable{
 	@ManyToOne(optional=false)
 	private UserRole role;
 	
+	@OneToMany(mappedBy="doctor", fetch=FetchType.EAGER, orphanRemoval=true)
+	@JsonBackReference
+	private Set<Diagnostic> diagnostics;
+	
 	public User() {}
-
 
 	public User(Long id, String username, char[] password, UserRole role) {
 		super();
@@ -69,6 +78,14 @@ public class User implements Serializable{
 
 	public void setRole(UserRole role) {
 		this.role = role;
+	}
+
+	public Set<Diagnostic> getDiagnostics() {
+		return diagnostics;
+	}
+
+	public void setDiagnostics(Set<Diagnostic> diagnostics) {
+		this.diagnostics = diagnostics;
 	}
 
 	@Override

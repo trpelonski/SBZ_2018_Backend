@@ -40,13 +40,18 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
-	public Page<User> getUsers(Pageable pageable) {
-		return userRepository.findAll(pageable);
+	public Page<User> getUsers(String username, Pageable pageable) {
+		return userRepository.findByUsernameNot(username,pageable);
 	}
 
 	@Override
-	public Long countUsers() {
-		return userRepository.count();
+	public Long countUsers(String username) {
+		return userRepository.countByUsernameNot(username);
+	}
+
+	@Override
+	public User findById(Long id) {
+		return userRepository.findOne(id);
 	}
 
 }

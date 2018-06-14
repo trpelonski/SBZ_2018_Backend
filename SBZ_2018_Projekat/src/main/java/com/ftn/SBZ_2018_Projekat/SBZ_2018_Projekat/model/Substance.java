@@ -33,7 +33,7 @@ public class Substance implements Serializable{
 	        inverseJoinColumns = { @JoinColumn(name = "patient_id") }, 
 	        joinColumns = { @JoinColumn(name = "allergic_to_substance_id") }
 	    )
-	@JsonBackReference
+	@JsonBackReference(value="patients-info")
 	private Set<Patient> patients;
 	
 	
@@ -43,7 +43,7 @@ public class Substance implements Serializable{
 	        joinColumns = { @JoinColumn(name = "substances_id") }, 
 	        inverseJoinColumns = { @JoinColumn(name = "antibiotic_id") }
 	    )
-	@JsonBackReference
+	@JsonBackReference(value="antibiotics-info")
 	private Set<Antibiotic> antibiotics;
 	
 	public Substance() {}

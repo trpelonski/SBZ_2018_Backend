@@ -3,6 +3,7 @@ package com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model;
 import java.io.Serializable;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -11,6 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
@@ -26,8 +28,12 @@ public class Disease implements Serializable{
 	@Column(nullable=false, length=90)
 	private String name;
 	
-	@OneToMany(mappedBy="disease", fetch=FetchType.EAGER)
+	@OneToMany(mappedBy="disease", fetch=FetchType.EAGER,cascade = {CascadeType.REMOVE})
 	private Set<DiseaseSymptom> diseaseSymptoms;
+	
+	@OneToMany(mappedBy="disease", fetch=FetchType.EAGER,cascade = {CascadeType.REMOVE})
+	@JsonBackReference
+	private Set<DiagnosticDisease> diagnosticDiseases;
 	
 	public Disease() {}
 
@@ -60,6 +66,14 @@ public class Disease implements Serializable{
 
 	public void setDiseaseSymptoms(Set<DiseaseSymptom> diseaseSymptoms) {
 		this.diseaseSymptoms = diseaseSymptoms;
+	}
+
+	public Set<DiagnosticDisease> getDiagnosticDiseases() {
+		return diagnosticDiseases;
+	}
+
+	public void setDiagnosticDiseases(Set<DiagnosticDisease> diagnosticDiseases) {
+		this.diagnosticDiseases = diagnosticDiseases;
 	}
 
 	@Override

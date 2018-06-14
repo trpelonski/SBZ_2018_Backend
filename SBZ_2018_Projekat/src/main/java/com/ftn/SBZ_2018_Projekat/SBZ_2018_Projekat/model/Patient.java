@@ -52,7 +52,7 @@ public class Patient implements Serializable{
 	    )
 	private Set<Substance> allergicToSubstance;
 	
-	@OneToMany(mappedBy="patient", fetch=FetchType.EAGER)
+	@OneToMany(mappedBy="patient", fetch=FetchType.EAGER, orphanRemoval=true)
 	private Set<Diagnostic> diagnostics;
 	
 	public Patient() {}

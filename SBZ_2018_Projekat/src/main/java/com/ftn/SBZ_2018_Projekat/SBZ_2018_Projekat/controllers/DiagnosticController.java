@@ -92,7 +92,7 @@ public class DiagnosticController {
 	@Value("${utils.token.header}")
     private String tokenHeader;
 	
-	@PreAuthorize("hasAuthority('1')")
+	@PreAuthorize("hasAuthority('1') or hasAuthority('2')")
 	@RequestMapping(value="getPatients/{page}", method=RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
 	public ResponseWrapper<Page<Patient>> getAllPatients(@PathVariable int page){
 		

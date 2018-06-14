@@ -18,6 +18,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.JoinColumn;
 
 import org.drools.core.factmodel.traits.Traitable;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import org.kie.api.definition.type.PropertyReactive;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -36,7 +38,7 @@ public class Diagnostic implements Serializable{
 	@Column(nullable=false)
 	private Date date;
 	
-	@ManyToOne(optional=false)
+	@ManyToOne(optional=true)
 	@JsonBackReference
 	private Patient patient;
 	
@@ -48,13 +50,14 @@ public class Diagnostic implements Serializable{
 	    )
 	private Set<Symptom> symptoms;
 	
-	@ManyToOne(optional=true)
+	@ManyToOne(optional=true, cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.PERSIST})
+	@NotFound(action = NotFoundAction.IGNORE)
 	private User doctor;
 	
 	@Column(nullable = true, length=500)
 	private String description;
 	
-	@OneToMany(mappedBy="diagnostic", fetch=FetchType.EAGER)
+	@OneToMany(mappedBy="diagnostic", fetch=FetchType.EAGER, cascade = {CascadeType.REMOVE})
 	private Set<DiagnosticDisease> diagnosticDiseases;
 	
 	public Diagnostic() {}

@@ -45,7 +45,7 @@ public class Antibiotic implements Serializable{
 	        inverseJoinColumns = { @JoinColumn(name = "patient_id") }, 
 	        joinColumns = { @JoinColumn(name = "allergic_to_antibiotic_id") }
 	    )
-	@JsonBackReference
+	@JsonBackReference(value="patients-info")
 	private Set<Patient> patients;
 	
 	@ManyToMany(cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.PERSIST}, targetEntity=DiagnosticDisease.class)
@@ -54,7 +54,7 @@ public class Antibiotic implements Serializable{
 	        joinColumns = { @JoinColumn(name = "medications_id") }, 
 	        inverseJoinColumns = { @JoinColumn(name = "diagnostic_disease_id") }
 	    )
-	@JsonBackReference
+	@JsonBackReference(value="diagnosticDiseases-info")
 	private Set<DiagnosticDisease> diagnosticDiseases;
 	
 	public Antibiotic() {}

@@ -18,5 +18,6 @@ public interface PatientService {
 	public Long countPatientsByFirstNameAndLastName(String name);
 	public Patient updatePatient(Patient patient);
 	public void deletePatient(Long id);
+	public Patient findById(Long id);
 	
 }

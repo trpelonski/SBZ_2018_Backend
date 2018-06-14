@@ -4,15 +4,18 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.JoinColumn;
 
 import org.drools.core.factmodel.traits.Traitable;
 import org.kie.api.definition.type.PropertyReactive;
@@ -37,10 +40,15 @@ public class Diagnostic implements Serializable{
 	@JsonBackReference
 	private Patient patient;
 	
-	@ManyToMany
+	@ManyToMany(cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.PERSIST}, targetEntity=Symptom.class)
+	@JoinTable(
+	        name = "diagnostic_symptoms", 
+	        joinColumns = { @JoinColumn(name = "diagnostic_id") }, 
+	        inverseJoinColumns = { @JoinColumn(name = "symptoms_id") }
+	    )
 	private Set<Symptom> symptoms;
 	
-	@ManyToOne(optional=false)
+	@ManyToOne(optional=true)
 	private User doctor;
 	
 	@Column(nullable = true, length=500)

@@ -3,10 +3,12 @@ package com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Substance;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.repositories.SubstanceRepository;
 
+@Service
 public class SubstanceServiceImpl implements SubstanceService {
 
 	@Autowired

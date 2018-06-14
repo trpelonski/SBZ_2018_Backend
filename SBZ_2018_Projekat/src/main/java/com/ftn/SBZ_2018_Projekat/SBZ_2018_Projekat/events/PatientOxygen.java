@@ -2,6 +2,9 @@ package com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.events;
 
 import java.io.Serializable;
 
+import org.kie.api.definition.type.PropertyReactive;
+
+@PropertyReactive
 public class PatientOxygen implements Serializable{
 
 	private static final long serialVersionUID = 1L;

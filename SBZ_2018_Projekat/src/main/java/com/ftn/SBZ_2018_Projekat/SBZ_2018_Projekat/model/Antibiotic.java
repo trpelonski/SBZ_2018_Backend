@@ -3,13 +3,18 @@ package com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model;
 import java.io.Serializable;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 public class Antibiotic implements Serializable{
@@ -26,8 +31,31 @@ public class Antibiotic implements Serializable{
 	@ManyToOne(optional=false)
 	private AntibioticType type; 
 	
-	@ManyToMany
+	@ManyToMany(cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.PERSIST}, targetEntity=Substance.class)
+	@JoinTable(
+	        name = "antibiotic_substances", 
+	        inverseJoinColumns = { @JoinColumn(name = "substances_id") }, 
+	        joinColumns = { @JoinColumn(name = "antibiotic_id") }
+	    )
 	private Set<Substance> substances;
+	
+	@ManyToMany(cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.PERSIST}, targetEntity=Patient.class)
+	@JoinTable(
+	        name = "patient_allergic_to_antibiotic", 
+	        inverseJoinColumns = { @JoinColumn(name = "patient_id") }, 
+	        joinColumns = { @JoinColumn(name = "allergic_to_antibiotic_id") }
+	    )
+	@JsonBackReference
+	private Set<Patient> patients;
+	
+	@ManyToMany(cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.PERSIST}, targetEntity=DiagnosticDisease.class)
+	@JoinTable(
+	        name = "diagnostic_disease_medications", 
+	        joinColumns = { @JoinColumn(name = "medications_id") }, 
+	        inverseJoinColumns = { @JoinColumn(name = "diagnostic_disease_id") }
+	    )
+	@JsonBackReference
+	private Set<DiagnosticDisease> diagnosticDiseases;
 	
 	public Antibiotic() {}
 

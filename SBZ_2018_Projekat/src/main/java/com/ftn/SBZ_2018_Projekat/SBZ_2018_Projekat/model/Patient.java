@@ -3,12 +3,15 @@ package com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model;
 import java.io.Serializable;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 
@@ -33,10 +36,20 @@ public class Patient implements Serializable{
 	@Column(nullable=false, length=90)
 	private String lastname;
 	
-	@ManyToMany
+	@ManyToMany(cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.PERSIST}, targetEntity=Antibiotic.class)
+	@JoinTable(
+	        name = "patient_allergic_to_antibiotic", 
+	        joinColumns = { @JoinColumn(name = "patient_id") }, 
+	        inverseJoinColumns = { @JoinColumn(name = "allergic_to_antibiotic_id") }
+	    )
 	private Set<Antibiotic> allergicToAntibiotic;
 	
-	@ManyToMany
+	@ManyToMany(cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.PERSIST}, targetEntity=Substance.class)
+	@JoinTable(
+	        name = "patient_allergic_to_substance", 
+	        joinColumns = { @JoinColumn(name = "patient_id") }, 
+	        inverseJoinColumns = { @JoinColumn(name = "allergic_to_substance_id") }
+	    )
 	private Set<Substance> allergicToSubstance;
 	
 	@OneToMany(mappedBy="patient", fetch=FetchType.EAGER)

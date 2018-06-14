@@ -3,10 +3,13 @@ package com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model;
 import java.io.Serializable;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
@@ -28,7 +31,12 @@ public class DiagnosticDisease implements Serializable{
 	@ManyToOne(optional=false)
 	private Disease disease;
 	
-	@ManyToMany
+	@ManyToMany(cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.PERSIST}, targetEntity=Antibiotic.class)
+	@JoinTable(
+	        name = "diagnostic_disease_medications", 
+	        inverseJoinColumns = { @JoinColumn(name = "medications_id") }, 
+	        joinColumns = { @JoinColumn(name = "diagnostic_disease_id") }
+	    )
 	private Set<Antibiotic> medications;
 	
 	public DiagnosticDisease() {}

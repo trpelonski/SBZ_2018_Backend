@@ -10,35 +10,35 @@ import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.events.PatientOxygen;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.events.OxygenLevelRisingEvent;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.events.OxygenLevelDroppingEvent;
 
-/*rule "Uvecaj nivo kiseonika"
+rule "Uvecaj nivo kiseonika"
 	no-loop true
 	lock-on-active true
 	when
-		OxygenLevelRisingEvent ( $patientOxygen : patientOxygen, $amount : amount )
-		$po : PatientOxygen ( this == $patientOxygen )
+		$olr : OxygenLevelRisingEvent ( $patientOxygen : patientOxygen, $amount : amount )
+		$po : PatientOxygen ( this == $patientOxygen, $level : level )
 	then
-		modify($po) { setLevel(getLevel()+$amount); }
+		modify($po) { setLevel($level+$amount); }
 end
 
 rule "Smanji nivo kiseonika"
 	no-loop true
 	lock-on-active true
 	when
-		OxygenLevelDroppingEvent ( $patientOxygen : patientOxygen, $amount : amount )
-		$po : PatientOxygen ( this == $patientOxygen )
+		$old : OxygenLevelDroppingEvent ( $patientOxygen : patientOxygen, $amount : amount )
+		$po : PatientOxygen ( this == $patientOxygen, $level : level )
 	then
-		modify($po) { setLevel(getLevel()-$amount); }
+		modify($po) { setLevel($level-$amount); }
 end
 
 rule "Problemi sa kiseonikom"
 	when
-		$po : PatientOxygen ( level < 70 )
+		$po : PatientOxygen ( level < 70, $patientId : patientId )
 		not ( OxygenLevelRisingEvent ( patientOxygen == $po )
 			  over window:time(15m) )
 	then
-
+		System.out.println("Pacijent "+$patientId+" ima problema sa kiseonikom");
 end
-*/
+
 rule "Ubrzani srcani ritam"
 	when
 		Patient ( $id : id )
@@ -51,9 +51,9 @@ rule "Ubrzani srcani ritam"
 		System.out.println("Pacijent "+$id+" ima ubrzani srcani ritam");
 end
 
-/*rule "Hitno potrebna dijaliza"
+rule "Hitno potrebna dijaliza"
 	when
-		Patient ( $id : id, $diagnostics, diagnostics)
+		Patient ( $id : id, $diagnostics : diagnostics )
 		Diagnostic ( $diagnosticDiseases : diagnosticDiseases ) from $diagnostics
 		DiagnosticDisease ( $disease : disease ) from $diagnosticDiseases
 		Disease ( id == 7 ) from $disease	
@@ -68,7 +68,6 @@ end
 			sum($amount)
 		)	
 	then
-
+		System.out.println("Pacijentu "+$id+" potrebna dijaliza hitno");
 end
-*/
 

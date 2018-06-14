@@ -3,6 +3,7 @@ package com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.controllers;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import org.kie.api.KieServices;
@@ -16,7 +17,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.dto.ResponseWrapper;
-import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.events.IntensiveCareTimerTask;
+import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.events.HeartBeatEvent;
+import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.events.OxygenLevelDroppingEvent;
+import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.events.PatientOxygen;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Patient;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.User;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.security.TokenUtils;
@@ -80,23 +83,68 @@ public class LoginController {
     	kieSessions.put("medicationsSession", kSession2);
     	kieSessions.put("reportSession", kSession3);
 
-    	KieSession kSession4 = kieContainer.newKieSession("eventSession");
+    	//KieSession kSession4 = kieContainer.newKieSession("eventSession");
     	
-    	//kSession4.fireUntilHalt();
+    	//insertIntensiveCarePatients(kSession4);
     	
-    	ArrayList<Patient> patients = (ArrayList<Patient>) patientService.getAllPatients();
-    	
-    	kSession4.insert(patients.get(3));
-    	   	
-    	Timer timer = new Timer();
-    	timer.scheduleAtFixedRate(new IntensiveCareTimerTask(patients,kSession4), 1000, 100);
-    	
-    	
-    		
     	LoggedUser loggedUser = new LoggedUser(user.getUsername(), kieSessions);
 		loggedUsers.getLoggedUsers().put(loggedUser.getUsername(), loggedUser);
 		
 		return new ResponseWrapper<String>(token,true,"Uspesno logovanje!");
 	}
 	
+
+	private void insertIntensiveCarePatients(KieSession kieSession) {
+		ArrayList<Patient> patients = (ArrayList<Patient>) patientService.getAllPatients();
+		kieSession.insert(patients.get(2));
+		kieSession.insert(patients.get(3));
+		kieSession.insert(patients.get(4));
+		
+		/*new Thread(new Runnable() {
+            public void run() {
+            	kieSession.fireUntilHalt();
+            }
+        }).start();
+		*/
+				
+		Timer timer1 = new Timer();
+		Timer timer2 = new Timer();
+		
+		timer1.scheduleAtFixedRate(new TimerTask() {
+			long timeToStop = System.currentTimeMillis();
+			@Override
+			public void run() {
+				if(System.currentTimeMillis()-timeToStop > 20*1000) {
+					cancel();
+					kieSession.fireAllRules();
+				}else {
+					HeartBeatEvent hbe = new HeartBeatEvent(patients.get(3).getId());
+					kieSession.insert(hbe);
+					System.out.println("Prvi tajmer");
+				}		
+			}
+    		
+    	},10000,100);
+		
+		timer2.schedule(new TimerTask() {
+			long timeToStop = System.currentTimeMillis();
+			@Override
+			public void run() {
+				if(System.currentTimeMillis()-timeToStop > 15*1000) {
+					cancel();
+					kieSession.fireAllRules();
+				}else {
+					PatientOxygen po = new PatientOxygen(patients.get(4).getId(),71);
+					OxygenLevelDroppingEvent old = new OxygenLevelDroppingEvent(po,2);
+					kieSession.insert(po);
+					kieSession.insert(old);
+					System.out.println("Drugi tajmer");
+				}		
+			}
+    		
+    	},10000);
+		
+	}
+	
 }
+

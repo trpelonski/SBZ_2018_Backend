@@ -158,7 +158,7 @@ public class DiagnosticController {
 		return new ResponseWrapper<ArrayList<Disease>>(diseases,true,"Uspesno dovucene boleti");
 	}
 	
-	@PreAuthorize("hasAuthority('1')")
+	@PreAuthorize("hasAuthority('1') or hasAuthority('2')")
 	@RequestMapping(value="getMedications/{page}", method=RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
 	public ResponseWrapper<Page<Antibiotic>> getMedications(@PathVariable int page){
 		

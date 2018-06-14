@@ -24,7 +24,7 @@ public class DiseaseSymptom implements Serializable{
 	@JsonBackReference
 	private Disease disease;
 	
-	@ManyToOne
+	@ManyToOne()
 	private Symptom symptom;
 	
 	@Column(nullable=false)

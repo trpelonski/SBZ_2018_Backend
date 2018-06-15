@@ -54,7 +54,7 @@ rule "Prehlada"
 		if(diseasePercentageNew>$diseasePercentage || (diseasePercentageNew==$diseasePercentage && $sum > $symptomsSum)){
 			$de.setDiseasePercentage(diseasePercentageNew);
 			$de.setSymptomsSum($sum);
-			Disease disease = diseaseService.getDisease(new Long(1));
+			Disease disease = diseaseService.getDiseaseByCodename("PREH");
 			DiagnosticDisease diagnosticDisease = new DiagnosticDisease(disease);
 			modify($d) { getDiagnosticDiseases().clear(), getDiagnosticDiseases().add(diagnosticDisease); }
 		}		
@@ -81,7 +81,7 @@ rule "Groznica"
 		if(diseasePercentageNew>$diseasePercentage || (diseasePercentageNew==$diseasePercentage && $sum > $symptomsSum)){
 			$de.setDiseasePercentage(diseasePercentageNew);
 			$de.setSymptomsSum($sum);
-			Disease disease = diseaseService.getDisease(new Long(2));
+			Disease disease = diseaseService.getDiseaseByCodename("GROZ");
 			DiagnosticDisease diagnosticDisease = new DiagnosticDisease(disease);
 			modify($d) { getDiagnosticDiseases().clear(), getDiagnosticDiseases().add(diagnosticDisease); }
 		}		
@@ -108,7 +108,7 @@ rule "Upala krajnika"
 		if(diseasePercentageNew>$diseasePercentage || (diseasePercentageNew==$diseasePercentage && $sum > $symptomsSum)){
 			$de.setDiseasePercentage(diseasePercentageNew);
 			$de.setSymptomsSum($sum);
-			Disease disease = diseaseService.getDisease(new Long(3));
+			Disease disease = diseaseService.getDiseaseByCodename("UPALK");
 			DiagnosticDisease diagnosticDisease = new DiagnosticDisease(disease);
 			modify($d) { getDiagnosticDiseases().clear(), getDiagnosticDiseases().add(diagnosticDisease); }
 		}		
@@ -149,7 +149,7 @@ rule "Sinusna infekcija"
 		if(diseasePercentageNew>$diseasePercentage || (diseasePercentageNew==$diseasePercentage && sum > $symptomsSum)){
 			$de.setDiseasePercentage(diseasePercentageNew);
 			$de.setSymptomsSum(sum);
-			Disease disease = diseaseService.getDisease(new Long(4));
+			Disease disease = diseaseService.getDiseaseByCodename("SINUSINF");
 			DiagnosticDisease diagnosticDisease = new DiagnosticDisease(disease);
 			modify($d) { getDiagnosticDiseases().clear(), getDiagnosticDiseases().add(diagnosticDisease); }
 		}		
@@ -202,7 +202,7 @@ rule "Hipertenzija"
 			)
 		eval($sum1+$sum2>=10)		
 	then
-		Disease disease = diseaseService.getDisease(new Long(5));
+		Disease disease = diseaseService.getDiseaseByCodename("HIPERT");
 		DiagnosticDisease diagnosticDisease = new DiagnosticDisease(disease);
 		modify($d) { getDiagnosticDiseases().add(diagnosticDisease); }
 end
@@ -223,7 +223,7 @@ rule "Dijabetes"
 					result ( count )
 				) 			
 	then
-		Disease disease = diseaseService.getDisease(new Long(6));
+		Disease disease = diseaseService.getDiseaseByCodename("DIJAB");
 		DiagnosticDisease diagnosticDisease = new DiagnosticDisease(disease);
 		modify($d) { getDiagnosticDiseases().add(diagnosticDisease); }
 end
@@ -265,7 +265,7 @@ rule "Hronicna bubrezna povreda"
 				)
 		eval($sum1 >= 2 && $sum2 >= 1)	
 	then
-		Disease disease = diseaseService.getDisease(new Long(7));
+		Disease disease = diseaseService.getDiseaseByCodename("HBB");
 		DiagnosticDisease diagnosticDisease = new DiagnosticDisease(disease);
 		modify($d) { getDiagnosticDiseases().clear(), getDiagnosticDiseases().add(diagnosticDisease); }	
 end
@@ -298,7 +298,7 @@ rule "Akutna bubrezna povreda"
 		AntibioticType ( id==1 ) from $type)
 		
 	then
-		Disease disease = diseaseService.getDisease(new Long(8));
+		Disease disease = diseaseService.getDiseaseByCodename("ABB");
 		DiagnosticDisease diagnosticDisease = new DiagnosticDisease(disease);
 		modify($d) { getDiagnosticDiseases().clear(), getDiagnosticDiseases().add(diagnosticDisease); }	
 end

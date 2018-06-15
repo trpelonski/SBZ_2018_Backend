@@ -16,4 +16,5 @@ public interface DiseaseService {
 	public void deleteDisease(Long id);
 	public Page<Disease> getDiseases(Pageable pageable);
 	public Long countDiseases();
+	public Disease getDiseaseByCodename(String codename);
 }

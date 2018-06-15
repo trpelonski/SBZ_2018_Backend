@@ -17,7 +17,7 @@ public class AntibioticType implements Serializable{
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;
 	
-	@Column(nullable=false, length=60)
+	@Column(nullable=false, length=60, unique=true)
 	private String name;
 
 	public AntibioticType() {}

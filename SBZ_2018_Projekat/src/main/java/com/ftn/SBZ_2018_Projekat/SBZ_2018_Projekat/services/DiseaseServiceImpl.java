@@ -51,4 +51,9 @@ public class DiseaseServiceImpl implements DiseaseService{
 		return diseaseRepository.count();
 	}
 
+	@Override
+	public Disease getDiseaseByCodename(String codename) {
+		return diseaseRepository.getOneByCodename(codename);
+	}
+
 }

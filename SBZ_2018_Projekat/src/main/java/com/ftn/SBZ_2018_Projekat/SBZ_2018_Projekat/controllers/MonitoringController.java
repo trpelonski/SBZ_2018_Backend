@@ -36,9 +36,6 @@ public class MonitoringController extends TextWebSocketHandler {
 	private PatientService patientService;
 	
 	@Autowired
-	private KieContainer kieContainer;
-	
-	@Autowired
 	private TokenUtils tokenUtils;
 	
 	@Autowired
@@ -81,7 +78,7 @@ public class MonitoringController extends TextWebSocketHandler {
 				LoggedUser loggedUser = loggedUsers.getLoggedUsers().get(username);
 				session.getAttributes().put("loggedUser", loggedUser);
 				
-				KieSession kieSession = kieContainer.newKieSession("eventSession");
+				KieSession kieSession = loggedUser.getKieSessions().get("eventSession");
 		    	kieSession.setGlobal("socketSession", session);
 
 		    	insertIntensiveCarePatients(kieSession,loggedUser.getTimers());

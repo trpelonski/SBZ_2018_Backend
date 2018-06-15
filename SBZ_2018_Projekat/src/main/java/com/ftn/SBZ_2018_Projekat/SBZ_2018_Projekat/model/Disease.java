@@ -35,13 +35,17 @@ public class Disease implements Serializable{
 	@JsonBackReference
 	private Set<DiagnosticDisease> diagnosticDiseases;
 	
+	@Column(nullable=false, unique=true, length=30)
+	private String codename;
+	
 	public Disease() {}
 
-	public Disease(Long id, String name, Set<DiseaseSymptom> diseaseSymptoms) {
+	public Disease(Long id, String name, Set<DiseaseSymptom> diseaseSymptoms, String codename) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.diseaseSymptoms = diseaseSymptoms;
+		this.codename = codename;
 	}
 
 	public Long getId() {
@@ -74,6 +78,14 @@ public class Disease implements Serializable{
 
 	public void setDiagnosticDiseases(Set<DiagnosticDisease> diagnosticDiseases) {
 		this.diagnosticDiseases = diagnosticDiseases;
+	}
+	
+	public String getCodeName() {
+		return codename;
+	}
+
+	public void setCodeName(String codename) {
+		this.codename = codename;
 	}
 
 	@Override

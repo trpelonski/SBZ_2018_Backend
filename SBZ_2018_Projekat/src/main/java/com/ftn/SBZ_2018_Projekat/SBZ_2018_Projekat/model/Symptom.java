@@ -32,6 +32,9 @@ public class Symptom implements Serializable{
 	@Column(nullable=false)
 	private Boolean toShow;
 	
+	@Column(nullable=false, unique=true, length=30)
+	private String codename;
+	
 	@OneToMany(mappedBy="symptom", fetch=FetchType.EAGER, cascade = {CascadeType.REMOVE})
 	@JsonBackReference(value="diseaseSymptoms-info")
 	private Set<DiseaseSymptom> diseaseSymptoms;
@@ -47,11 +50,12 @@ public class Symptom implements Serializable{
 	
 	public Symptom() {}
 
-	public Symptom(Long id, String name, Boolean toShow) {
+	public Symptom(Long id, String name, Boolean toShow, String codename) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.toShow = toShow;
+		this.codename = codename;
 	}
 
 	public Long getId() {
@@ -92,6 +96,14 @@ public class Symptom implements Serializable{
 
 	public void setDiagnostics(Set<Diagnostic> diagnostics) {
 		this.diagnostics = diagnostics;
+	}
+	
+	public String getCodeName() {
+		return codename;
+	}
+
+	public void setCodeName(String codename) {
+		this.codename = codename;
 	}
 
 	@Override

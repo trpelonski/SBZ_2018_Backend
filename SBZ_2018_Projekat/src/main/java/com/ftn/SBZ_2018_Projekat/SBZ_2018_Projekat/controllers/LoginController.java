@@ -63,8 +63,16 @@ public class LoginController {
 		}else {
 			token = tokenUtils.generateToken(CustomUserDetailsFactory.createCustomUserDetails(user));
 		}
-			
-    	KieSession kSession1 = kieContainer.newKieSession("rulesSession");
+    	
+    	LoggedUser loggedUser = new LoggedUser(user.getUsername(), createSessionsMap());
+		loggedUsers.getLoggedUsers().put(loggedUser.getUsername(), loggedUser);
+		
+		return new ResponseWrapper<String>(token,true,"Uspesno logovanje!");
+	}
+	
+	private HashMap<String,KieSession> createSessionsMap(){
+		
+		KieSession kSession1 = kieContainer.newKieSession("rulesSession");
     	kSession1.setGlobal("diseaseService", diseaseService);
     	kSession1.setGlobal("days60", System.currentTimeMillis()-TimeUnit.DAYS.toMillis(60));
     	kSession1.setGlobal("days14", System.currentTimeMillis()-TimeUnit.DAYS.toMillis(14));
@@ -82,68 +90,8 @@ public class LoginController {
     	kieSessions.put("rulesSession", kSession1);
     	kieSessions.put("medicationsSession", kSession2);
     	kieSessions.put("reportSession", kSession3);
-
-    	//KieSession kSession4 = kieContainer.newKieSession("eventSession");
-    	
-    	//insertIntensiveCarePatients(kSession4);
-    	
-    	LoggedUser loggedUser = new LoggedUser(user.getUsername(), kieSessions);
-		loggedUsers.getLoggedUsers().put(loggedUser.getUsername(), loggedUser);
 		
-		return new ResponseWrapper<String>(token,true,"Uspesno logovanje!");
-	}
-	
-
-	private void insertIntensiveCarePatients(KieSession kieSession) {
-		ArrayList<Patient> patients = (ArrayList<Patient>) patientService.getAllPatients();
-		kieSession.insert(patients.get(2));
-		kieSession.insert(patients.get(3));
-		kieSession.insert(patients.get(4));
-		
-		/*new Thread(new Runnable() {
-            public void run() {
-            	kieSession.fireUntilHalt();
-            }
-        }).start();
-		*/
-				
-		Timer timer1 = new Timer();
-		Timer timer2 = new Timer();
-		
-		timer1.scheduleAtFixedRate(new TimerTask() {
-			long timeToStop = System.currentTimeMillis();
-			@Override
-			public void run() {
-				if(System.currentTimeMillis()-timeToStop > 20*1000) {
-					cancel();
-					kieSession.fireAllRules();
-				}else {
-					HeartBeatEvent hbe = new HeartBeatEvent(patients.get(3).getId());
-					kieSession.insert(hbe);
-					System.out.println("Prvi tajmer");
-				}		
-			}
-    		
-    	},10000,100);
-		
-		timer2.schedule(new TimerTask() {
-			long timeToStop = System.currentTimeMillis();
-			@Override
-			public void run() {
-				if(System.currentTimeMillis()-timeToStop > 15*1000) {
-					cancel();
-					kieSession.fireAllRules();
-				}else {
-					PatientOxygen po = new PatientOxygen(patients.get(4).getId(),71);
-					OxygenLevelDroppingEvent old = new OxygenLevelDroppingEvent(po,2);
-					kieSession.insert(po);
-					kieSession.insert(old);
-					System.out.println("Drugi tajmer");
-				}		
-			}
-    		
-    	},10000);
-		
+		return kieSessions;
 	}
 	
 }

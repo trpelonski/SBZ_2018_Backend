@@ -4,21 +4,23 @@ import java.io.Serializable;
 
 import org.kie.api.definition.type.PropertyReactive;
 
-@PropertyReactive
 public class PatientOxygen implements Serializable{
 
 	private static final long serialVersionUID = 1L;
 	
 	private Long patientId;
 	
+	private String patientStringId;
+	
 	private double level;
 
 	public PatientOxygen() {}
 	
-	public PatientOxygen(Long patientId, double level) {
+	public PatientOxygen(Long patientId, double level, String patientStringId) {
 		super();
 		this.patientId = patientId;
 		this.level = level;
+		this.patientStringId = patientStringId;
 	}
 
 	public Long getPatientId() {
@@ -37,8 +39,17 @@ public class PatientOxygen implements Serializable{
 		this.level = level;
 	}
 
+	public String getPatientStringId() {
+		return patientStringId;
+	}
+
+	public void setPatientStringId(String patientStringId) {
+		this.patientStringId = patientStringId;
+	}
+
 	@Override
 	public String toString() {
-		return "PatientOxygen [patientId=" + patientId + ", level=" + level + "]";
+		return "PatientOxygen [patientId=" + patientId + ", patientStringId=" + patientStringId + ", level=" + level
+				+ "]";
 	}
 }

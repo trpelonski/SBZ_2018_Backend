@@ -55,6 +55,8 @@ import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.services.UserService;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.userDetails.LoggedUser;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.userDetails.LoggedUsers;
 
+import io.jsonwebtoken.Claims;
+
 @RestController
 @RequestMapping(value = "app/secured/")
 public class DiagnosticController {
@@ -219,7 +221,7 @@ public class DiagnosticController {
 	    
 	    LoggedUser loggedUser = loggedUsers.getLoggedUsers().get(username);
 	    KieSession kieSession = loggedUser.getKieSessions().get("rulesSession");
-	    
+	        
 	    kieSession.insert(diagnostic);
 	    
 	    kieSession.getAgenda().getAgendaGroup("necessary").setFocus();

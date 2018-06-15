@@ -10,6 +10,11 @@ import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.events.PatientOxygen;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.events.OxygenLevelRisingEvent;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.events.OxygenLevelDroppingEvent;
 
+import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.TextMessage;
+
+global WebSocketSession socketSession;
+
 rule "Uvecaj nivo kiseonika"
 	no-loop true
 	lock-on-active true
@@ -32,28 +37,28 @@ end
 
 rule "Problemi sa kiseonikom"
 	when
-		$po : PatientOxygen ( level < 70, $patientId : patientId )
+		$po : PatientOxygen ( level < 70, $patientStringId : patientStringId )
 		not ( OxygenLevelRisingEvent ( patientOxygen == $po )
 			  over window:time(15m) )
 	then
-		System.out.println("Pacijent "+$patientId+" ima problema sa kiseonikom");
+		socketSession.sendMessage(new TextMessage("Pacijent "+$patientStringId+" ima problema sa kiseonikom"));
 end
 
 rule "Ubrzani srcani ritam"
 	when
-		Patient ( $id : id )
+		Patient ( $id : id, $stringId : stringId )
 		Number ( intValue > 25 ) from accumulate(
 			HeartBeatEvent ( patientId == $id )
 			over window:time(10s),
 			count(1)
 		)
 	then
-		System.out.println("Pacijent "+$id+" ima ubrzani srcani ritam");
+		socketSession.sendMessage(new TextMessage("Pacijent "+$stringId+" ima ubrzani srcani ritam"));
 end
 
 rule "Hitno potrebna dijaliza"
 	when
-		Patient ( $id : id, $diagnostics : diagnostics )
+		Patient ( $id : id, $diagnostics : diagnostics, $stringId : stringId )
 		Diagnostic ( $diagnosticDiseases : diagnosticDiseases ) from $diagnostics
 		DiagnosticDisease ( $disease : disease ) from $diagnosticDiseases
 		Disease ( id == 7 ) from $disease	
@@ -68,6 +73,6 @@ rule "Hitno potrebna dijaliza"
 			sum($amount)
 		)	
 	then
-		System.out.println("Pacijentu "+$id+" potrebna dijaliza hitno");
+		socketSession.sendMessage(new TextMessage("Pacijentu "+$stringId+" potrebna dijaliza hitno"));
 end
 

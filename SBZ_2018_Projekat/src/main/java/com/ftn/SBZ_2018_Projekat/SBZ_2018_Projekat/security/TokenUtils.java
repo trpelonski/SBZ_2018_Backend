@@ -3,9 +3,12 @@ package com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.security;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.transaction.Transactional;
 
+import org.kie.api.runtime.KieContainer;
+import org.kie.api.runtime.KieSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.User;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.repositories.UserRepository;
+import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.services.DiseaseService;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -31,8 +35,7 @@ public class TokenUtils
 
     @Autowired
     private UserRepository userRepository;
-
-
+    
     public String getUsernameFromToken(String token) 
     {
         String username;
@@ -50,7 +53,7 @@ public class TokenUtils
     }
 
     
-    private Claims getClaimsFromToken(String token) 
+    public Claims getClaimsFromToken(String token) 
     {
         Claims claims;
         try 
@@ -120,7 +123,4 @@ public class TokenUtils
                 .setExpiration(new Date(System.currentTimeMillis() + expiration * 1000))
                 .signWith(SignatureAlgorithm.HS512, secret).compact();
     }
-
-
-
 }

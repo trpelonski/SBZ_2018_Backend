@@ -1,6 +1,8 @@
 package com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.userDetails;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Timer;
 
 import org.kie.api.runtime.KieSession;
 
@@ -8,13 +10,15 @@ public class LoggedUser {
 
 	private String username;
 	private HashMap<String,KieSession> kieSessions;
+	private ArrayList<Timer> timers;
 	
 	public LoggedUser() {}
 
-	public LoggedUser(String username, HashMap<String, KieSession> kieSessions) {
+	public LoggedUser(String username, HashMap<String, KieSession> kieSessions, ArrayList<Timer> timers) {
 		super();
 		this.username = username;
 		this.kieSessions = kieSessions;
+		this.timers = timers ;
 	}
 
 	public String getUsername() {
@@ -31,6 +35,14 @@ public class LoggedUser {
 
 	public void setKieSessions(HashMap<String, KieSession> kieSessions) {
 		this.kieSessions = kieSessions;
+	}
+	
+	public ArrayList<Timer> getTimers() {
+		return timers;
+	}
+
+	public void setTimers(ArrayList<Timer> timers) {
+		this.timers = timers;
 	}
 
 	@Override

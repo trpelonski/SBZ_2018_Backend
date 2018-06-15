@@ -64,7 +64,7 @@ public class LoginController {
 			token = tokenUtils.generateToken(CustomUserDetailsFactory.createCustomUserDetails(user));
 		}
     	
-    	LoggedUser loggedUser = new LoggedUser(user.getUsername(), createSessionsMap());
+    	LoggedUser loggedUser = new LoggedUser(user.getUsername(), createSessionsMap(), createTimers());
 		loggedUsers.getLoggedUsers().put(loggedUser.getUsername(), loggedUser);
 		
 		return new ResponseWrapper<String>(token,true,"Uspesno logovanje!");
@@ -92,6 +92,27 @@ public class LoginController {
     	kieSessions.put("reportSession", kSession3);
 		
 		return kieSessions;
+	}
+	
+	private ArrayList<Timer> createTimers(){
+		
+		Timer rulesTimer1 = new Timer();
+		Timer rulesTimer2 = new Timer();
+		Timer timer1 = new Timer();
+		Timer timer2 = new Timer();
+		Timer timer3 = new Timer();
+		Timer timer4 = new Timer();
+		
+		ArrayList<Timer> timers = new ArrayList<Timer>();
+		
+		timers.add(rulesTimer1);
+		timers.add(rulesTimer2);
+		timers.add(timer1);
+		timers.add(timer2);
+		timers.add(timer3);
+		timers.add(timer4);
+		
+		return timers;
 	}
 	
 }

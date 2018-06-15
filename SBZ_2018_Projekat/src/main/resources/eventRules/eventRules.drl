@@ -18,6 +18,7 @@ global WebSocketSession socketSession;
 rule "Uvecaj nivo kiseonika"
 	no-loop true
 	lock-on-active true
+	agenda-group "oxygenRules"
 	when
 		$olr : OxygenLevelRisingEvent ( $patientOxygen : patientOxygen, $amount : amount )
 		$po : PatientOxygen ( this == $patientOxygen, $level : level )
@@ -28,6 +29,7 @@ end
 rule "Smanji nivo kiseonika"
 	no-loop true
 	lock-on-active true
+	agenda-group "oxygenRules"
 	when
 		$old : OxygenLevelDroppingEvent ( $patientOxygen : patientOxygen, $amount : amount )
 		$po : PatientOxygen ( this == $patientOxygen, $level : level )
@@ -36,6 +38,7 @@ rule "Smanji nivo kiseonika"
 end
 
 rule "Problemi sa kiseonikom"
+	agenda-group "oxygenRules"
 	when
 		$po : PatientOxygen ( level < 70, $patientStringId : patientStringId )
 		not ( OxygenLevelRisingEvent ( patientOxygen == $po )
@@ -45,6 +48,7 @@ rule "Problemi sa kiseonikom"
 end
 
 rule "Ubrzani srcani ritam"
+	agenda-group "heartRules"
 	when
 		Patient ( $id : id, $stringId : stringId )
 		Number ( intValue > 25 ) from accumulate(
@@ -57,6 +61,7 @@ rule "Ubrzani srcani ritam"
 end
 
 rule "Hitno potrebna dijaliza"
+	agenda-group "urinationRules"
 	when
 		Patient ( $id : id, $diagnostics : diagnostics, $stringId : stringId )
 		Diagnostic ( $diagnosticDiseases : diagnosticDiseases ) from $diagnostics

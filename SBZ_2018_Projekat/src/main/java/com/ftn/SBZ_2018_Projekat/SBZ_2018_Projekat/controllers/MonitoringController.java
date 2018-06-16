@@ -74,7 +74,6 @@ public class MonitoringController extends TextWebSocketHandler {
 		try {
 			if(jsonObject!=null) {
 				String username = tokenUtils.getUsernameFromToken(jsonObject.getString("token"));
-				System.out.println(username);
 				LoggedUser loggedUser = loggedUsers.getLoggedUsers().get(username);
 				session.getAttributes().put("loggedUser", loggedUser);
 				

@@ -18,7 +18,7 @@ import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.User;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.services.UserService;
 
 @RestController
-@RequestMapping(value="app/secured/")
+@RequestMapping(value = "app/secured/")
 public class UserController {
 
 	@Autowired

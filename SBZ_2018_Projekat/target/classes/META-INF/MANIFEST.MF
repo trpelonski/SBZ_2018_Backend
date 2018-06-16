@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Implementation-Title: Drools Spring v2 App
+Implementation-Version: 0.0.1-SNAPSHOT
+Built-By: D1
+Implementation-Vendor-Id: drools-spring-v2
+Build-Jdk: 1.8.0_161
+Implementation-URL: http://projects.spring.io/spring-boot/drools-sprin
+ g-v2-app/
+Created-By: Maven Integration for Eclipse
+Implementation-Vendor: Pivotal Software, Inc.
+

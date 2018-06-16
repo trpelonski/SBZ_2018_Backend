@@ -1,6 +1,7 @@
 package com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.services;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -44,6 +45,16 @@ public class SymptomServiceImpl implements SymptomService {
 	@Override
 	public Long countSymptoms() {
 		return symptomRepository.count();
+	}
+
+	@Override
+	public List<Symptom> getAllSymptoms() {
+		return symptomRepository.findAll();
+	}
+
+	@Override
+	public Symptom getOneByCodename(String codename) {
+		return symptomRepository.getOneByCodename(codename);
 	}
 
 }

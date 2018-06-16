@@ -1,5 +1,7 @@
 package com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.services;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -63,6 +65,11 @@ public class AntibioticServiceImpl implements AntibioticService{
 	public AntibioticType getAntibioticType(Long id) {
 		
 		return antibioticTypeRepository.findOne(id);
+	}
+
+	@Override
+	public List<Antibiotic> getAllAntibiotics() {
+		return antibioticRepository.findAll();
 	}
 
 }

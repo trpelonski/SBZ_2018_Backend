@@ -1,6 +1,7 @@
 package com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.services;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,4 +16,6 @@ public interface SymptomService {
 	public void deleteSymptom(Long id);
 	public Page<Symptom> getSymptoms(Pageable pageable);
 	public Long countSymptoms();
+	public List<Symptom> getAllSymptoms();
+	public Symptom getOneByCodename(String codename);
 }

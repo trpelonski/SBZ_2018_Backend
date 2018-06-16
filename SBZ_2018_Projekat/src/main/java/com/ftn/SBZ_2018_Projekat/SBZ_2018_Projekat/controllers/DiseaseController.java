@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.dto.ResponseWrapper;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Disease;
+import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.DiseaseSymptom;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.services.DiseaseService;
 
 @RestController
@@ -51,6 +52,10 @@ public class DiseaseController {
 	@RequestMapping(value="insertDisease", method=RequestMethod.POST, consumes=MediaType.APPLICATION_JSON_VALUE, produces=MediaType.APPLICATION_JSON_VALUE)
 	public ResponseWrapper<Disease> insertDisease(@RequestBody Disease disease){
 		
+		for(DiseaseSymptom diseaseSymptom : disease.getDiseaseSymptoms()) {
+			diseaseSymptom.setDisease(disease);
+		}
+		
 		disease = diseaseService.insertDisease(disease);
 		
 		if(disease==null) {
@@ -63,6 +68,14 @@ public class DiseaseController {
 	@PreAuthorize("hasAuthority('2')")
 	@RequestMapping(value="updateDisease", method=RequestMethod.PUT, consumes=MediaType.APPLICATION_JSON_VALUE, produces=MediaType.APPLICATION_JSON_VALUE)
 	public ResponseWrapper<Disease> updateDisease(@RequestBody Disease disease){
+		
+		for(DiseaseSymptom diseaseSymptom : disease.getDiseaseSymptoms()) {
+			diseaseSymptom.setDisease(disease);
+		}
+		
+		if(diseaseService.getDiseaseByCodename(disease.getCodeName())!=null) {
+			return new ResponseWrapper<Disease>(null,false,"Kodni naziv vec postoji");
+		}
 		
 		disease = diseaseService.updateDisease(disease);
 		

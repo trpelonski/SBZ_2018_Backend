@@ -19,4 +19,5 @@ public interface AntibioticService {
 	public Antibiotic updateAntibiotic(Antibiotic antibiotic);
 	public void deleteAntibiotic(Long id);
 	public AntibioticType getAntibioticType(Long id);
+	public List<Antibiotic> getAllAntibiotics();
 }

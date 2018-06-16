@@ -1,5 +1,7 @@
 package com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.controllers;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.dto.ResponseWrapper;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Patient;
+import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Substance;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Symptom;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.services.SymptomService;
 
@@ -65,6 +68,10 @@ public class SymptomController {
 	@RequestMapping(value="updateSymptom", method=RequestMethod.PUT, consumes=MediaType.APPLICATION_JSON_VALUE, produces=MediaType.APPLICATION_JSON_VALUE)
 	public ResponseWrapper<Symptom> updateSymptom(@RequestBody Symptom symptom){
 		
+		if(symptomService.getOneByCodename(symptom.getCodeName())!=null) {
+			return new ResponseWrapper<Symptom>(null,false,"Kodni naziv vec postoji");
+		}
+		
 		symptom = symptomService.updateSymptom(symptom);
 		
 		if(symptom==null) {
@@ -85,4 +92,12 @@ public class SymptomController {
 		}			
 		return new ResponseWrapper<Symptom>(null,true,"Uspesno izbrisan simptom");		
 	}
+	
+	@PreAuthorize("hasAuthority('2')")
+	@RequestMapping(value="getAllSymptoms", method=RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
+	public ResponseWrapper<List<Symptom>> getAllSymptoms(){
+			
+		return new ResponseWrapper<List<Symptom>>(symptomService.getAllSymptoms(), true, "Uspesno vraceni simptomi.");
+	}
+	
 }

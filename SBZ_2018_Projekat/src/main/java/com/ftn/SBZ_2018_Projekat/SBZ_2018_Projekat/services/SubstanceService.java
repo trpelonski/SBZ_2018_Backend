@@ -1,5 +1,7 @@
 package com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.services;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -12,5 +14,6 @@ public interface SubstanceService {
 	public void deleteSubstance(Long id);
 	public Page<Substance> getSubstance(Pageable pageable);
 	public Long countSubstances();
+	public List<Substance> getAllSubstance();
 	
 }

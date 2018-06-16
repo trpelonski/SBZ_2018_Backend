@@ -67,4 +67,11 @@ public class AntibioticController {
 		return new ResponseWrapper<Antibiotic>(null,true,"Uspesno izbrisan lek");		
 	}
 	
+	@PreAuthorize("hasAuthority('2')")
+	@RequestMapping(value="getAllAntibiotics", method=RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
+	public ResponseWrapper<List<Antibiotic>> getAllAntibiotics(){
+				
+		return new ResponseWrapper<List<Antibiotic>>(antibioticService.getAllAntibiotics(), true, "Uspesno dobavljanje.");		
+	}
+	
 }

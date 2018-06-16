@@ -1,5 +1,7 @@
 package com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.controllers;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -84,6 +86,13 @@ public class SubstanceController {
 			return new ResponseWrapper<Substance>(null,false,"Neuspesno izbrisana substanca");
 		}			
 		return new ResponseWrapper<Substance>(null,true,"Uspesno izbrisana substanca");		
+	}
+	
+	@PreAuthorize("hasAuthority('2')")
+	@RequestMapping(value="getAllSubstances", method=RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
+	public ResponseWrapper<List<Substance>> getAllSubstances(){
+			
+		return new ResponseWrapper<List<Substance>>(substanceService.getAllSubstance(), true, "Uspesno vracene substance.");
 	}
 	
 }

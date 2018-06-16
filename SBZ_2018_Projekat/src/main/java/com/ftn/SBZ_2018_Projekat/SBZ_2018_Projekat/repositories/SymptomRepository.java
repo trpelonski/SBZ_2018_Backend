@@ -9,5 +9,6 @@ import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Symptom;
 public interface SymptomRepository extends JpaRepository<Symptom,Long>{
 
 	public ArrayList<Symptom> findAllByToShow(Boolean toShow);
+	public Symptom getOneByCodename(String codename);
 	
 }

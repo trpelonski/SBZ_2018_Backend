@@ -6,13 +6,18 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.User;
+import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.UserRole;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.repositories.UserRepository;
+import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.repositories.UserRoleRepository;
 
 @Service
 public class UserServiceImpl implements UserService{
 
 	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	private UserRoleRepository userRoleRepository;
 	
 	@Override
 	public User findByUsername(String username) {
@@ -52,6 +57,11 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public User findById(Long id) {
 		return userRepository.findOne(id);
+	}
+
+	@Override
+	public UserRole getUserRole(Long id) {
+		return userRoleRepository.findOne(id);
 	}
 
 }

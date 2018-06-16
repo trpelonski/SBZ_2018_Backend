@@ -56,12 +56,16 @@ public class UserController {
 			return new ResponseWrapper<User>(null,false,"Korisnicko ime vec postoji!");
 		}
 		
+		
+		
 		if(user.getRole().getId()==1) {
 			char[] password = {'l','e','k','a','r','1','2','3','4','5'};
 			user.setPassword(password);
+			user.setRole(userService.getUserRole(user.getRole().getId()));
 		}else {
 			char[] password = {'a','d','m','i','n','1','2','3','4','5'};
 			user.setPassword(password);
+			user.setRole(userService.getUserRole(user.getRole().getId()));
 		}
 		
 		user = userService.insertUser(user);

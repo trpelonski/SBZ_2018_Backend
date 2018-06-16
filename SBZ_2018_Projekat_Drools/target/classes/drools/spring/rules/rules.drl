@@ -54,7 +54,7 @@ rule "Prehlada"
 		$de : DiseaseExpert ( $diseasePercentage : diseasePercentage >= 0.0, $symptomsSum : symptomsSum )
 		Number ( $sum : intValue >= 4) from accumulate(
 				Symptom(
-					id == 1 || id == 2 || id == 3 || id == 4 || id == 5
+					codeName == "CIN" || id == 2 || id == 3 || id == 4 || id == 5
 				) from $symptoms,
 					init ( int count = 0; ),
 					action ( count = count + 1; ),

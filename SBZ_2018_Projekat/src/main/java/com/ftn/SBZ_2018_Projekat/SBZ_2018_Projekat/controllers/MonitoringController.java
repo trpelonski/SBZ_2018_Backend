@@ -7,11 +7,14 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
+import org.drools.core.time.SessionPseudoClock;
 import org.json.JSONObject;
 import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.rule.FactHandle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
@@ -23,6 +26,7 @@ import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.events.HeartBeatEvent;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.events.OxygenLevelDroppingEvent;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.events.OxygenLevelRisingEvent;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.events.PatientOxygen;
+import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.events.UrinationEvent;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Patient;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.security.TokenUtils;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.services.PatientService;
@@ -53,10 +57,11 @@ public class MonitoringController extends TextWebSocketHandler {
 		System.out.println("Closed");
 		LoggedUser loggedUser = (LoggedUser) session.getAttributes().get("loggedUser");
 		
-		for(Timer timer : loggedUser.getTimers()) {
-			timer.cancel();
+		if(loggedUser!=null) {
+			for(Timer timer : loggedUser.getTimers()) {
+				timer.cancel();
+			}
 		}
-		
 		sessions.remove(session);
 	}
 
@@ -77,10 +82,20 @@ public class MonitoringController extends TextWebSocketHandler {
 				LoggedUser loggedUser = loggedUsers.getLoggedUsers().get(username);
 				session.getAttributes().put("loggedUser", loggedUser);
 				
-				KieSession kieSession = loggedUser.getKieSessions().get("eventSession");
-		    	kieSession.setGlobal("socketSession", session);
+				if(jsonObject.getString("mode").equals("REAL_TIME")) {
+					KieSession kieSession = loggedUser.getKieSessions().get("eventSession");
+			    	kieSession.setGlobal("socketSession", session);
 
-		    	insertIntensiveCarePatients(kieSession,loggedUser.getTimers());
+			    	insertIntensiveCarePatientsRealTime(kieSession,loggedUser.getTimers());
+				
+				}else if(jsonObject.getString("mode").equals("PSEUDO")) {
+					KieSession kieSession = loggedUser.getKieSessions().get("eventSessionPseudo");
+			    	kieSession.setGlobal("socketSession", session);
+
+			    	insertIntensiveCarePatientsPseudo(kieSession,loggedUser.getTimers());				
+				}
+				
+				
 			}
 						
 		} catch (Exception e) {
@@ -89,7 +104,7 @@ public class MonitoringController extends TextWebSocketHandler {
 	}
 
 	
-	private void insertIntensiveCarePatients(KieSession kieSession, ArrayList<Timer> timers) {
+	private void insertIntensiveCarePatientsRealTime(KieSession kieSession, ArrayList<Timer> timers) {
 		ArrayList<Patient> patients = (ArrayList<Patient>) patientService.getAllPatients();
 		kieSession.insert(patients.get(2));
 		kieSession.insert(patients.get(3));
@@ -186,6 +201,81 @@ public class MonitoringController extends TextWebSocketHandler {
 			}
     		
     	},20000,250);
+		
+	}
+	
+	
+	private void insertIntensiveCarePatientsPseudo(KieSession kieSession, ArrayList<Timer> timers) {
+		ArrayList<Patient> patients = (ArrayList<Patient>) patientService.getAllPatients();
+		kieSession.insert(patients.get(2));
+		kieSession.insert(patients.get(8));
+		PatientOxygen po = new PatientOxygen(patients.get(9).getId(),80,patients.get(9).getStringId());
+		kieSession.insert(po);
+		
+		SessionPseudoClock clock = kieSession.getSessionClock();
+		
+		for(int i=0; i < 30; i++) {
+			HeartBeatEvent hbe = new HeartBeatEvent(patients.get(8).getId());
+			kieSession.insert(hbe);
+		}
+		
+		clock.advanceTime(9, TimeUnit.SECONDS);
+		
+		kieSession.getAgenda().getAgendaGroup("heartRules").setFocus();
+		kieSession.fireAllRules();		
+		
+		clock.advanceTime(5, TimeUnit.MINUTES);
+		
+		UrinationEvent ur1 = new UrinationEvent(patients.get(2).getId(),33);	
+		kieSession.insert(ur1);
+		
+		clock.advanceTime(3, TimeUnit.HOURS);
+		
+		UrinationEvent ur2 = new UrinationEvent(patients.get(2).getId(),11);	
+		kieSession.insert(ur2);
+		
+		clock.advanceTime(4, TimeUnit.HOURS);
+		
+		UrinationEvent ur3 = new UrinationEvent(patients.get(2).getId(),20);	
+		kieSession.insert(ur3);
+			
+		clock.advanceTime(3, TimeUnit.HOURS);
+		
+		for(int i=0; i < 30; i++) {
+			HeartBeatEvent hbe = new HeartBeatEvent(patients.get(2).getId());
+			kieSession.insert(hbe);
+		}
+		
+		clock.advanceTime(9, TimeUnit.SECONDS);
+		
+		kieSession.getAgenda().getAgendaGroup("heartRules").setFocus();
+		kieSession.fireAllRules();	
+		
+		kieSession.getAgenda().getAgendaGroup("urinationRules").setFocus();
+		kieSession.fireAllRules();
+		
+		clock.advanceTime(5, TimeUnit.MINUTES);
+		
+		OxygenLevelRisingEvent olre = new OxygenLevelRisingEvent(po,5);		
+		kieSession.insert(olre);
+		
+		clock.advanceTime(2, TimeUnit.MINUTES);
+
+		OxygenLevelDroppingEvent olde1 = new OxygenLevelDroppingEvent(po,10);
+		kieSession.insert(olde1);
+		OxygenLevelDroppingEvent olde2 = new OxygenLevelDroppingEvent(po,10);
+		kieSession.insert(olde2);
+		
+		clock.advanceTime(14, TimeUnit.MINUTES);
+		
+		kieSession.getAgenda().getAgendaGroup("oxygenRules").setFocus();
+		kieSession.fireAllRules();
+		
+		/*for (FactHandle factHandle : kieSession.getFactHandles()) {
+            kieSession.delete(factHandle);
+        } 
+        */  
+		
 		
 	}
 	

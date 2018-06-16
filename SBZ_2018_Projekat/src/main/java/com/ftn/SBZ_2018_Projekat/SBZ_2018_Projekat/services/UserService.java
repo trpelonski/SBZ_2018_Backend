@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.User;
+import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.UserRole;
 
 public interface UserService {
 
@@ -15,4 +16,5 @@ public interface UserService {
 	public Page<User> getUsers(String username, Pageable pageable);
 	public Long countUsers(String username);
 	public User findById(Long id);
+	public UserRole getUserRole(Long id);
 }

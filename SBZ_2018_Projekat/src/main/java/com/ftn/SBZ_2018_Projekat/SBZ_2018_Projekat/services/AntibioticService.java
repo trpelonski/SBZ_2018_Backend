@@ -1,6 +1,6 @@
 package com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.services;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,4 +18,5 @@ public interface AntibioticService {
 	public Antibiotic insertAntibiotic(Antibiotic antibiotic);
 	public Antibiotic updateAntibiotic(Antibiotic antibiotic);
 	public void deleteAntibiotic(Long id);
+	public AntibioticType getAntibioticType(Long id);
 }

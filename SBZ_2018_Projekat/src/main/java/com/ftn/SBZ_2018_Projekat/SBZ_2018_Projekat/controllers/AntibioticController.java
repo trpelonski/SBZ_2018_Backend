@@ -1,5 +1,7 @@
 package com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.controllers;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.dto.ResponseWrapper;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Antibiotic;
+import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.AntibioticType;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.services.AntibioticService;
 
 @RestController
@@ -24,6 +27,10 @@ public class AntibioticController {
 	@RequestMapping(value="insertAntibiotic", method=RequestMethod.POST, consumes=MediaType.APPLICATION_JSON_VALUE, produces=MediaType.APPLICATION_JSON_VALUE)
 	public ResponseWrapper<Antibiotic> insertAntibiotic(@RequestBody Antibiotic antibiotic){
 		
+		antibiotic.setType(antibioticService.getAntibioticType(antibiotic.getType().getId()));
+		
+		System.out.println(antibiotic.getSubstances().size());
+		
 		antibiotic = antibioticService.insertAntibiotic(antibiotic);
 		
 		if(antibiotic==null) {
@@ -36,6 +43,8 @@ public class AntibioticController {
 	@PreAuthorize("hasAuthority('2')")
 	@RequestMapping(value="updateAntibiotic", method=RequestMethod.PUT, consumes=MediaType.APPLICATION_JSON_VALUE, produces=MediaType.APPLICATION_JSON_VALUE)
 	public ResponseWrapper<Antibiotic> updateAntibiotic(@RequestBody Antibiotic antibiotic){
+		
+		antibiotic.setType(antibioticService.getAntibioticType(antibiotic.getType().getId()));
 		
 		antibiotic = antibioticService.updateAntibiotic(antibiotic);
 		

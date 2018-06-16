@@ -31,7 +31,7 @@ public class Antibiotic implements Serializable{
 	@ManyToOne(optional=false)
 	private AntibioticType type; 
 	
-	@ManyToMany(cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.PERSIST}, targetEntity=Substance.class)
+	@ManyToMany(cascade = {CascadeType.DETACH,CascadeType.REFRESH}, targetEntity=Substance.class)
 	@JoinTable(
 	        name = "antibiotic_substances", 
 	        inverseJoinColumns = { @JoinColumn(name = "substances_id") }, 
@@ -39,7 +39,7 @@ public class Antibiotic implements Serializable{
 	    )
 	private Set<Substance> substances;
 	
-	@ManyToMany(cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.PERSIST}, targetEntity=Patient.class)
+	@ManyToMany(cascade = {CascadeType.DETACH,CascadeType.REFRESH}, targetEntity=Patient.class)
 	@JoinTable(
 	        name = "patient_allergic_to_antibiotic", 
 	        inverseJoinColumns = { @JoinColumn(name = "patient_id") }, 
@@ -48,7 +48,7 @@ public class Antibiotic implements Serializable{
 	@JsonBackReference(value="patients-info")
 	private Set<Patient> patients;
 	
-	@ManyToMany(cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.PERSIST}, targetEntity=DiagnosticDisease.class)
+	@ManyToMany(cascade = {CascadeType.DETACH,CascadeType.REFRESH}, targetEntity=DiagnosticDisease.class)
 	@JoinTable(
 	        name = "diagnostic_disease_medications", 
 	        joinColumns = { @JoinColumn(name = "medications_id") }, 

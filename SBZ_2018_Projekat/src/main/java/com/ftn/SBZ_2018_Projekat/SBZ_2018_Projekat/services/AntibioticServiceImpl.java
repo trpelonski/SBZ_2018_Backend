@@ -1,7 +1,5 @@
 package com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.services;
 
-import java.util.ArrayList;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,12 +8,16 @@ import org.springframework.stereotype.Service;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Antibiotic;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.AntibioticType;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.repositories.AntibioticRepository;
+import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.repositories.AntibioticTypeRepository;
 
 @Service
 public class AntibioticServiceImpl implements AntibioticService{
 
 	@Autowired
 	private AntibioticRepository antibioticRepository;
+	
+	@Autowired
+	private AntibioticTypeRepository antibioticTypeRepository;
 	
 	@Override
 	public Page<Antibiotic> findAllAntibiotics(Pageable pageable) {
@@ -55,6 +57,12 @@ public class AntibioticServiceImpl implements AntibioticService{
 	@Override
 	public void deleteAntibiotic(Long id) {
 		antibioticRepository.delete(id);
+	}
+
+	@Override
+	public AntibioticType getAntibioticType(Long id) {
+		
+		return antibioticTypeRepository.findOne(id);
 	}
 
 }

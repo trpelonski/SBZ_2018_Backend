@@ -66,7 +66,7 @@ rule "Hitno potrebna dijaliza"
 		Patient ( $id : id, $diagnostics : diagnostics, $stringId : stringId )
 		Diagnostic ( $diagnosticDiseases : diagnosticDiseases ) from $diagnostics
 		DiagnosticDisease ( $disease : disease ) from $diagnosticDiseases
-		Disease ( id == 7 ) from $disease	
+		Disease ( codeName=="HBB" ) from $disease	
 		Number ( intValue > 10 ) from accumulate(
 			HeartBeatEvent ( patientId == $id )
 			over window:time(10s),

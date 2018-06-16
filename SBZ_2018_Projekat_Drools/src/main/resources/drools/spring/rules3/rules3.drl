@@ -26,7 +26,7 @@ rule "Sa potencijalnim hronicnim oboljenjima"
 		Number ( intValue > 5) from accumulate(
 			Diagnostic(date.getTime() >= years2, $diagnosticDiseases2 : diagnosticDiseases ) from $diagnostics and
 			DiagnosticDisease ( $disease2 : disease ) from $diagnosticDiseases2 and
-			Disease ( id == $id && id != 1 && id != 2 ) from $disease2,
+			Disease ( id == $id && codeName != "PREH" && codeName != "GROZ" ) from $disease2,
 			
 				init ( int count = 0; ),
 				action ( count = count + 1; ),
@@ -47,7 +47,7 @@ rule "Potencijalni zavisnici"
 			$diagnostic : Diagnostic ( date.getTime() >= months6, $diagnosticDiseases : diagnosticDiseases, $doctor : doctor) from $diagnostics and
 			DiagnosticDisease ( $medications : medications ) from $diagnosticDiseases and
 			Antibiotic ( $type : type ) from $medications and
-			AntibioticType ( id==2 ) from $type,	
+			AntibioticType ( name=="Analgetik" ) from $type,	
 				$sum : collectSet($diagnostic),
 				$doctors : collectSet($doctor)			
 			)
@@ -68,7 +68,7 @@ rule "Oslabljeni imunitet"
 			Set ( size >= 2 ) from accumulate(		
 			DiagnosticDisease ( $id1 : id, $medications1 : medications ) from $diagnosticDiseases1 and
 			Antibiotic ( $type1 : type ) from $medications1 and
-			AntibioticType ( id==1 && $diagnosticDiseases1.size()>=2 ) from $type1,	
+			AntibioticType ( name=="Antibiotik" && $diagnosticDiseases1.size()>=2 ) from $type1,	
 				collectSet($id1)
 			);
 			init ( int count1 = 0; ),
@@ -80,7 +80,7 @@ rule "Oslabljeni imunitet"
 			Set ( size == $diagnosticDiseases2.size() && $diagnosticDiseases2.size() != 0 ) from accumulate(		
 			DiagnosticDisease ( $id2 : id, $medications2 : medications ) from $diagnosticDiseases2 and
 			Antibiotic ( $type2 : type ) from $medications2 and
-			AntibioticType ( id==1 ) from $type2,	
+			AntibioticType ( name=="Antibiotik" ) from $type2,	
 				collectSet($id2)
 			);
 			init ( int count2 = 0; ),

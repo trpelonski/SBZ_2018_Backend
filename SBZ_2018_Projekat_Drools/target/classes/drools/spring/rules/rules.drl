@@ -54,7 +54,7 @@ rule "Prehlada"
 		$de : DiseaseExpert ( $diseasePercentage : diseasePercentage >= 0.0, $symptomsSum : symptomsSum )
 		Number ( $sum : intValue >= 4) from accumulate(
 				Symptom(
-					codeName == "CIN" || id == 2 || id == 3 || id == 4 || id == 5
+					codeName == "CIN" || codeName == "BOLGRLO" || codeName == "GLAV" || codeName == "KIJA" || codeName == "KASALJ"
 				) from $symptoms,
 					init ( int count = 0; ),
 					action ( count = count + 1; ),
@@ -81,7 +81,7 @@ rule "Groznica"
 		$de : DiseaseExpert ( $diseasePercentage : diseasePercentage >= 0.0, $symptomsSum : symptomsSum )
 		Number ( $sum : intValue >= 4) from accumulate(
 				Symptom(
-					id == 1 || id == 2 || id == 3 || id == 4 || id == 5 || id == 6 || id == 21
+					codeName == "CIN" || codeName == "BOLGRLO" || codeName == "GLAV" || codeName == "KIJA" || codeName == "KASALJ" || codeName == "DRHT" || codeName == "T38"
 				) from $symptoms,
 					init ( int count = 0; ),
 					action ( count = count + 1; ),
@@ -108,7 +108,7 @@ rule "Upala krajnika"
 		$de : DiseaseExpert ( $diseasePercentage : diseasePercentage >= 0.0, $symptomsSum : symptomsSum )
 		Number ( $sum : intValue >= 4) from accumulate(
 				Symptom(
-					id == 2 || id == 3 || id == 6 || id == 7 || id == 8 || id == 9 || id == 10 || id == 22
+					codeName == "BOLGRLO" || codeName == "GLAV" || codeName == "DRHT" || codeName == "BKSU" || codeName == "GUBAPETIT" || codeName == "UMOR" || codeName == "ZSIN" || codeName == "T40-41"
 				) from $symptoms,
 					init ( int count = 0; ),
 					action ( count = count + 1; ),
@@ -135,7 +135,7 @@ rule "Sinusna infekcija"
 		$de : DiseaseExpert ( $diseasePercentage : diseasePercentage >= 0.0, $symptomsSum : symptomsSum )
 		Number ( $sum1 : intValue) from accumulate(
 				Symptom(
-					id == 2 || id == 3 || id == 5 || id == 10 || id == 11 || id == 21
+					codeName == "BOLGRLO" || codeName == "GLAV" || codeName == "KASALJ" || codeName == "ZSIN" || codeName == "OOO" || codeName == "T38"
 				) from $symptoms,		
 					init ( int count = 0; ),
 					action ( count = count + 1; ),
@@ -146,7 +146,7 @@ rule "Sinusna infekcija"
 					Diagnostic ( date.getTime()>=days60, $diagnosticDiseases : diagnosticDiseases ) from $diagnostics and
 					DiagnosticDisease ( $disease : disease ) from $diagnosticDiseases and
 					Disease ( 
-						id == 1 || id == 2
+						codeName == "PREH" || codeName == "GROZ"
 					) from $disease,
 					
 					init ( int count = 0; ),
@@ -198,14 +198,14 @@ rule "Hipertenzija"
 		Patient ( $diagnostics : diagnostics ) from $patient	
 		Number ( $sum1 : intValue) from accumulate (
 				Diagnostic ( $symptoms : symptoms, date.getTime() > months6) from $diagnostics
-				and Symptom ( id == 23 ) from $symptoms,
+				and Symptom ( codeName == "VP" ) from $symptoms,
 				init ( int count = 0; ),
 				action ( count = count + 1; ),
 				result ( count )
 			)
 		Number ( $sum2 : intValue) from accumulate (
 				Symptom(
-					id == 23
+					codeName == "VP"
 				) from $diagnosticSymptoms,	
 				init ( int count = 0; ),
 				action ( count = 1; ),
@@ -227,7 +227,7 @@ rule "Dijabetes"
 		$d : Diagnostic ( $symptoms : symptoms )
 		Number ( $sum : intValue == 4) from accumulate(
 				Symptom(
-					id == 12 || id == 13 || id == 14 || id == 15
+					codeName == "CURIN" || codeName == "GTT" || codeName == "ZAMOR" || codeName == "MIP"
 				) from $symptoms,
 					init ( int count = 0; ),
 					action ( count = count + 1; ),
@@ -260,7 +260,7 @@ rule "Hronicna bubrezna povreda"
 		Patient ( $diagnostics : diagnostics ) from $patient
 		Number ( $sum1 : intValue) from accumulate(
 				Symptom(
-					id == 14 || id == 16 || id == 17 || id == 18 || id == 19
+					codeName == "ZAMOR" || codeName == "NOCT" || codeName == "ONIZ" || codeName == "GUS" || codeName == "BOLGRUD"
 				) from $symptoms,		
 					init ( int count = 0; ),
 					action ( count = count + 1; ),
@@ -269,7 +269,7 @@ rule "Hronicna bubrezna povreda"
 		Number ( $sum2 : intValue) from accumulate(
 				Diagnostic ( $diagnosticDiseases : diagnosticDiseases, $date : date) from $diagnostics and
 				DiagnosticDisease ( $disease : disease ) from $diagnosticDiseases and
-				Disease ( id == 5 || (id == 6 && $date.getTime() <= months6) ) from $disease,
+				Disease ( codeName == "HIPERT" || (codeName == "DIJAB" && $date.getTime() <= months6) ) from $disease,
 					init ( int count = 0; ),
 					action ( count = count + 1; ),
 					result ( count )
@@ -291,22 +291,22 @@ rule "Akutna bubrezna povreda"
 		Patient ( $diagnostics : diagnostics ) from $patient
 		Number ( intValue >= 2) from accumulate(
 				Symptom(
-					id == 14 || id == 17 || id == 18 || id == 20
+					codeName == "ZAMOR" || codeName == "ONIZ" || codeName == "GUS" || codeName == "DIJAR"
 				) from $symptoms,		
 					init ( int count = 0; ),
 					action ( count = count + 1; ),
 					result ( count )
 				)
-		Symptom( id == 26 ) from $symptoms or
+		Symptom( codeName == "OOP" ) from $symptoms or
 		(Diagnostic ( $diagnosticDiseases : diagnosticDiseases, date.getTime() > days14 ) from $diagnostics and
 		DiagnosticDisease ( $disease : disease ) from $diagnosticDiseases and
 		Disease ( $diseaseSymptoms : diseaseSymptoms ) from $disease and
 		DiseaseSymptom ( $symptom : symptom ) from $diseaseSymptoms and
-		Symptom ( id == 21 || id == 22) from $symptom ) or			
+		Symptom ( codeName == "T38" || codeName == "T40-41") from $symptom ) or			
 		(Diagnostic ( $diagnosticDiseases : diagnosticDiseases, date.getTime() > days21) from $diagnostics and
 		DiagnosticDisease($medications : medications) from $diagnosticDiseases and
 		Antibiotic ( $type : type ) from $medications and
-		AntibioticType ( id==1 ) from $type)
+		AntibioticType ( name=="Antibiotik" ) from $type)
 		
 	then
 		Disease disease = diseaseService.getDiseaseByCodename("ABB");

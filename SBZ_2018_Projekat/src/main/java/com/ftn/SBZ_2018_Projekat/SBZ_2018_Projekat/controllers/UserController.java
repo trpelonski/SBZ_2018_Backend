@@ -68,6 +68,9 @@ public class UserController {
 			user.setRole(userService.getUserRole(user.getRole().getId()));
 		}
 		
+		if(userService.findByUsername(user.getUsername())!=null) {
+			return new ResponseWrapper<User>(null,false,"Korisnicko ime vec postoji!");
+		}	
 		user = userService.insertUser(user);
 		
 		if(user==null) {
@@ -81,12 +84,8 @@ public class UserController {
 	@RequestMapping(value="updateUser", method=RequestMethod.PUT, consumes=MediaType.APPLICATION_JSON_VALUE, produces=MediaType.APPLICATION_JSON_VALUE)
 	public ResponseWrapper<User> updateUser(@RequestBody User user){
 		
-		if(userService.findByUsername(user.getUsername())!=null) {
-			return new ResponseWrapper<User>(null,false,"Korisnicko ime vec postoji!");
-		}
-		
 		user = userService.updateUser(user);
-		
+				
 		if(user==null) {
 			return new ResponseWrapper<User>(null,false,"Neuspesno modifikovan korisnik");
 		}

@@ -55,6 +55,10 @@ public class SymptomController {
 	@RequestMapping(value="insertSymptom", method=RequestMethod.POST, consumes=MediaType.APPLICATION_JSON_VALUE, produces=MediaType.APPLICATION_JSON_VALUE)
 	public ResponseWrapper<Symptom> insertSymptom(@RequestBody Symptom symptom){
 		
+		if(symptomService.getOneByCodename(symptom.getCodeName())!=null) {
+			return new ResponseWrapper<Symptom>(null,false,"Kodni naziv vec postoji");
+		}
+		
 		symptom = symptomService.insertSymptom(symptom);
 		
 		if(symptom==null) {
@@ -68,12 +72,8 @@ public class SymptomController {
 	@RequestMapping(value="updateSymptom", method=RequestMethod.PUT, consumes=MediaType.APPLICATION_JSON_VALUE, produces=MediaType.APPLICATION_JSON_VALUE)
 	public ResponseWrapper<Symptom> updateSymptom(@RequestBody Symptom symptom){
 		
-		if(symptomService.getOneByCodename(symptom.getCodeName())!=null) {
-			return new ResponseWrapper<Symptom>(null,false,"Kodni naziv vec postoji");
-		}
-		
 		symptom = symptomService.updateSymptom(symptom);
-		
+			
 		if(symptom==null) {
 			return new ResponseWrapper<Symptom>(null,false,"Neuspesno modifikovan simptom");
 		}

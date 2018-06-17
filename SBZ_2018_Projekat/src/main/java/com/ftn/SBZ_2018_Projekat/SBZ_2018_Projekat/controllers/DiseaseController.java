@@ -1,5 +1,8 @@
 package com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.controllers;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,6 +19,7 @@ import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.dto.ResponseWrapper;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Disease;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.DiseaseSymptom;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.services.DiseaseService;
+import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.services.DiseaseSymptomService;
 
 @RestController
 @RequestMapping(value="app/secured/")
@@ -23,6 +27,9 @@ public class DiseaseController {
 
 	@Autowired
 	private DiseaseService diseaseService;
+	
+	@Autowired
+	private DiseaseSymptomService diseaseSymptomService;
 	
 	@PreAuthorize("hasAuthority('2')")
 	@RequestMapping(value="getDiseases/{page}", method=RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
@@ -56,12 +63,23 @@ public class DiseaseController {
 			diseaseSymptom.setDisease(disease);
 		}
 		
+		if(diseaseService.getDiseaseByCodename(disease.getCodeName())!=null) {
+			return new ResponseWrapper<Disease>(null,false,"Kodni naziv vec postoji");
+		}
+		
 		disease = diseaseService.insertDisease(disease);
+		
 		
 		if(disease==null) {
 			return new ResponseWrapper<Disease>(null,false,"Neuspesno uneta bolest");
 		}
-				
+		
+		for(DiseaseSymptom diseaseSymptom : disease.getDiseaseSymptoms()) {
+			if(diseaseSymptomService.findByDiseaseAndSymptom(diseaseSymptom.getDisease(), diseaseSymptom.getSymptom())==null) {
+				diseaseSymptomService.insertDiseaseSymptom(diseaseSymptom);
+			}
+		}
+					
 		return new ResponseWrapper<Disease>(disease,true,"Uspesno uneta bolest");		
 	}
 	
@@ -69,18 +87,23 @@ public class DiseaseController {
 	@RequestMapping(value="updateDisease", method=RequestMethod.PUT, consumes=MediaType.APPLICATION_JSON_VALUE, produces=MediaType.APPLICATION_JSON_VALUE)
 	public ResponseWrapper<Disease> updateDisease(@RequestBody Disease disease){
 		
-		for(DiseaseSymptom diseaseSymptom : disease.getDiseaseSymptoms()) {
-			diseaseSymptom.setDisease(disease);
-		}
+		Set<DiseaseSymptom> temp = new HashSet<DiseaseSymptom>();
 		
-		if(diseaseService.getDiseaseByCodename(disease.getCodeName())!=null) {
-			return new ResponseWrapper<Disease>(null,false,"Kodni naziv vec postoji");
-		}
+		for(DiseaseSymptom diseaseSymptom : disease.getDiseaseSymptoms()) {
+			temp.add(diseaseSymptom);
+		}	
+		
+		disease.getDiseaseSymptoms().clear();
 		
 		disease = diseaseService.updateDisease(disease);
 		
 		if(disease==null) {
 			return new ResponseWrapper<Disease>(null,false,"Neuspesno modifikovana bolest");
+		}
+				
+		for(DiseaseSymptom diseaseSymptom : temp) {
+			diseaseSymptom.setDisease(disease);
+			diseaseSymptomService.insertDiseaseSymptom(diseaseSymptom);
 		}
 				
 		return new ResponseWrapper<Disease>(disease,true,"Uspesno modifikovana bolest");		

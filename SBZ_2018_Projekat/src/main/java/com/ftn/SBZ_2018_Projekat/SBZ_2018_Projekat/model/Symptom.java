@@ -35,7 +35,7 @@ public class Symptom implements Serializable{
 	@Column(nullable=false, unique=true, length=30)
 	private String codename;
 	
-	@OneToMany(mappedBy="symptom", fetch=FetchType.EAGER, cascade = {CascadeType.REMOVE})
+	@OneToMany(mappedBy="symptom", fetch=FetchType.EAGER, orphanRemoval=true)
 	@JsonBackReference(value="diseaseSymptoms-info")
 	private Set<DiseaseSymptom> diseaseSymptoms;
 	

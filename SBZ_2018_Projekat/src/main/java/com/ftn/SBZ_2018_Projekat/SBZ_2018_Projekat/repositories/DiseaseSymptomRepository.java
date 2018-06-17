@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Disease;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.DiseaseSymptom;
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.Symptom;
 
@@ -14,5 +15,7 @@ public interface DiseaseSymptomRepository extends JpaRepository<DiseaseSymptom,L
 	public ArrayList<DiseaseSymptom> findAllByDisease(Long id);
 	
 	public ArrayList<DiseaseSymptom> findBySymptomIn(ArrayList<Symptom> symptoms);
+	
+	public DiseaseSymptom findByDiseaseAndSymptom(Disease disease, Symptom symptom);
 	
 }

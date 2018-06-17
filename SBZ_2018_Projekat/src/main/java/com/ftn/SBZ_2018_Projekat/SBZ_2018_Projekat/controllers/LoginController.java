@@ -11,9 +11,11 @@ import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.dto.ResponseWrapper;
@@ -68,6 +70,21 @@ public class LoginController {
 		loggedUsers.getLoggedUsers().put(loggedUser.getUsername(), loggedUser);
 		
 		return new ResponseWrapper<String>(token,true,"Uspesno logovanje!");
+	}
+	
+	@PreAuthorize("hasAuthority('1') or hasAuthority('2')")
+	@RequestMapping(value = "secured/logout", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseWrapper<String> odjaviKorisnika(@RequestParam(value="username", required = true) String username) {
+		
+		LoggedUser loggedUser = loggedUsers.getLoggedUsers().get(username);
+		
+		if(loggedUser==null) {
+			return new ResponseWrapper<String>("",false,"Korisnik nije logovan!");
+		}
+		
+		loggedUsers.getLoggedUsers().remove(username);
+		
+		return new ResponseWrapper<String>("",true,"Uspesno odjavljivanje!");
 	}
 	
 	private HashMap<String,KieSession> createSessionsMap(){

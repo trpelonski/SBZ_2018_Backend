@@ -36,7 +36,7 @@ public class Patient implements Serializable{
 	@Column(nullable=false, length=90)
 	private String lastname;
 	
-	@ManyToMany(cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.PERSIST}, targetEntity=Antibiotic.class)
+	@ManyToMany(cascade = {CascadeType.DETACH,CascadeType.REFRESH}, targetEntity=Antibiotic.class)
 	@JoinTable(
 	        name = "patient_allergic_to_antibiotic", 
 	        joinColumns = { @JoinColumn(name = "patient_id") }, 
@@ -44,7 +44,7 @@ public class Patient implements Serializable{
 	    )
 	private Set<Antibiotic> allergicToAntibiotic;
 	
-	@ManyToMany(cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.PERSIST}, targetEntity=Substance.class)
+	@ManyToMany(cascade = {CascadeType.DETACH,CascadeType.REFRESH}, targetEntity=Substance.class)
 	@JoinTable(
 	        name = "patient_allergic_to_substance", 
 	        joinColumns = { @JoinColumn(name = "patient_id") }, 

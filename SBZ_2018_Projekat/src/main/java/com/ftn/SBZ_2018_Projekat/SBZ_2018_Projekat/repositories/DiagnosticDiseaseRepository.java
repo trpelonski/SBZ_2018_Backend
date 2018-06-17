@@ -6,4 +6,6 @@ import com.ftn.SBZ_2018_Projekat.SBZ_2018_Projekat.model.DiagnosticDisease;
 
 public interface DiagnosticDiseaseRepository extends JpaRepository<DiagnosticDisease,Long>{
 
+	
+	
 }

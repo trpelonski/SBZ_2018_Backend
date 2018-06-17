@@ -28,7 +28,7 @@ public class Disease implements Serializable{
 	@Column(nullable=false, length=90)
 	private String name;
 	
-	@OneToMany(mappedBy="disease", fetch=FetchType.EAGER,cascade = {CascadeType.REMOVE,CascadeType.PERSIST, CascadeType.MERGE})
+	@OneToMany(mappedBy="disease", fetch=FetchType.EAGER, orphanRemoval=true)
 	private Set<DiseaseSymptom> diseaseSymptoms;
 	
 	@OneToMany(mappedBy="disease", fetch=FetchType.EAGER,cascade = {CascadeType.REMOVE})
